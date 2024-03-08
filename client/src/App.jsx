@@ -4,9 +4,14 @@ import React, { useState, useEffect } from 'react';
 import QRCode from 'qrcode.react';
 import io from 'socket.io-client';
 
-const ORIGIN = window.location.origin;
+const ORIGIN = window.location.host;
 
-const socket = io(`http://${window.location.host}:5000`);
+const SOCKET_PORT = 5000;
+const SOCKET_URL = `${window.location.protocol}//${window.location.hostname}:${SOCKET_PORT}`;
+const socket = io(SOCKET_URL);
+
+console.log(SOCKET_URL);
+
 
 function App() {
   const [images, setImages] = useState([]);
