@@ -1,9 +1,9 @@
-import React from 'react'
-import App from './App.jsx'
-import './index.css'
+import React from 'react';
 import ReactDOM from 'react-dom';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import Upload from './Upload.jsx';
+import App from './App.jsx';
+import Upload from './upload.jsx';
+import './index.css';
 
 const router = createBrowserRouter([
   {
