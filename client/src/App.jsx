@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import QRCode from 'qrcode.react';
 import io from 'socket.io-client';
 
-const ORIGIN = window.location.host;
+const ORIGIN = window.location.origin;
 
 const SOCKET_PORT = 5000;
 const SOCKET_URL = `${window.location.protocol}//${window.location.hostname}:${SOCKET_PORT}`;
