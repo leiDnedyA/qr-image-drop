@@ -4,9 +4,9 @@ import React, { useState, useEffect } from 'react';
 import QRCode from 'qrcode.react';
 import io from 'socket.io-client';
 
-const ORIGIN = '';
+const ORIGIN = window.location.origin;
 
-const socket = io(`${ORIGIN}:5000`);
+const socket = io(`http://${window.location.host}:5000`);
 
 function App() {
   const [images, setImages] = useState([]);
@@ -21,7 +21,7 @@ function App() {
   return (
     <div>
       <h1>QR Code Generator</h1>
-      <QRCode value={`upload`} />
+      <QRCode value={`${ORIGIN}/upload`} />
       <a href={`${ORIGIN}/upload`}>/upload</a>
       <h2>Uploaded Images:</h2>
       {images.map((image, index) => (
