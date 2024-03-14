@@ -13,6 +13,9 @@ import qrcode
 from io import BytesIO
 import base64
 
+# Heic handle
+from Utils.handleHeic import convert_heic_to_png
+
 
 app = Flask(__name__)
 app.secret_key = 'very_secret_key'
@@ -85,6 +88,13 @@ def upload_file():
             filename = f"{session_id}_{timestamp}_{filename}"
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(file_path)
+
+            # Check if the uploaded file is HEIC format; if so, convert to JPG
+            if filename.lower().endswith('.heic'):
+                file_path = convert_heic_to_png(file_path)
+                # Update filename to the new png filename
+                filename = filename.rsplit('.', 1)[0] + '.png'
+                print(f"Converted HEIC to PNG: {filename}")
 
             # Append the new file URL to the list in the session
             if 'uploaded_files_urls' not in session:

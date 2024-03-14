@@ -2,3 +2,6 @@
 /static/images/*.png
 /static/images/*.jpg
 /static/images/*.jpeg
+/static/images/*.heic
+
+__pycache__/
