@@ -35,7 +35,7 @@ def cleanup_old_files():
                 print(f"Deleted {path}")
 
 scheduler = BackgroundScheduler()
-scheduler.add_job(func=cleanup_old_files, trigger="interval", minutes=1)  # Runs every 5 minutes
+scheduler.add_job(func=cleanup_old_files, trigger="interval", minutes=5)  # Runs every 5 minutes
 scheduler.start()
 
 # Important!!!!!!!
