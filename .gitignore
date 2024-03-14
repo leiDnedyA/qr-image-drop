@@ -1,1 +1,4 @@
-node_modules/
+# Ignore all images under the folder /static/images/
+/static/images/*.png
+/static/images/*.jpg
+/static/images/*.jpeg
