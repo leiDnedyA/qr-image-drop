@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>File Upload</title>
+    <link rel="stylesheet" href="static/css/style.css">
+</head>
+<body>
+    <div class="upload-container">
+        <h1>Upload your file</h1>
+        <form action="" method="post" enctype="multipart/form-data" class="upload-form">
+            <label for="file-input" class="file-label">Choose a file</label>
+            <input type="file" name="file" id="file-input" onchange="handleFileSelect(event)">
+            <p id="file-name"></p>
+            <input type="submit" value="Upload" id="upload-button">
+        </form>
+    </div>
+
+    <script>
+        function handleFileSelect(event) {
+            const fileInput = event.target;
+            const fileName = fileInput.files[0].name;
+            const fileNameElement = document.getElementById('file-name');
+            const uploadButton = document.getElementById('upload-button');
+
+            fileNameElement.textContent = fileName;
+            uploadButton.classList.add('selected');
+        }
+    </script>
+</body>
+</html>

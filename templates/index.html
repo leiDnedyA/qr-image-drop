@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload and Share Files</title>
+    <link rel="stylesheet" href="static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Upload and Share Files</h1>
+            <div class="buttons">
+                <button onclick="window.location.reload();">Refresh</button>
+                <form action="/reset" method="get" class="reset-form">
+                    <button type="submit">Reset Session</button>
+                </form>
+            </div>
+        </header>
+        <main>
+            <section class="qr-code">
+                <p>Scan the QR code to upload:</p>
+                <img src="data:image/png;base64,{{ qr_code_data }}" alt="QR Code">
+                <p class="qr-code-url">QR Code URL (Testing only): <a target="_blank" href="{{ qr_code_url }}">here.</a></p>
+            </section>
+            <section class="uploaded-files">
+                <h2>Uploaded Files:</h2>
+                {% for file_url in uploaded_files_urls %}
+                <div class="file-container">
+                    <img src="{{ file_url }}" alt="Uploaded File">
+                    <a href="{{ file_url }}" download class="download-button">Download</a>
+                </div>
+                {% else %}
+                <p>No files uploaded yet.</p>
+                {% endfor %}
+            </section>
+        </main>
+    </div>
+</body>
+</html>
