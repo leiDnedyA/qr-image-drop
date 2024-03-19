@@ -1,5 +1,5 @@
 # Flask app
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+from flask import Flask, make_response, render_template, request, redirect, url_for, jsonify
 from werkzeug.utils import secure_filename
 
 # File management
@@ -16,6 +16,8 @@ import base64
 # Heic handle
 from Utils.handleHeic import convert_heic_to_png
 
+# Generate IDs for sessions
+import uuid
 
 app = Flask(__name__)
 app.secret_key = 'very_secret_key'
@@ -41,10 +43,19 @@ scheduler.start()
 # Important!!!!!!!
 atexit.register(lambda: scheduler.shutdown())
 
+# Key: UUID, value: [list of image ids for session]
+sessions = {}
+
 @app.route('/')
 def index():
-    if 'user_id' not in session:
-        session['user_id'] = os.urandom(24).hex()
+    user_id_cookie = request.cookies.get('user_id')
+    if not user_id_cookie:
+        # Set up session
+        user_id = str(uuid.uuid4())
+        sessions[user_id] = []
+    else:
+        user_id = user_id_cookie
+    print(user_id_cookie)
 
     # Generate QR code
     qr = qrcode.QRCode(
@@ -55,7 +66,7 @@ def index():
     )
 
     # Generate QR code with the URL to upload files
-    request_url = f'{request.url_root}upload?session_id={session["user_id"]}'
+    request_url = f'{request.url_root}upload?session_id={user_id}'
 
     qr.add_data(request_url)
     qr.make(fit=True)
@@ -68,10 +79,14 @@ def index():
 
     # Retrieve list of uploaded file URLs for the session so that it syncs when uploaded in the same
     # session
-    uploaded_files_urls = session.get('uploaded_files_urls', [])
+    uploaded_files_urls = sessions[user_id]
 
     # Return the qr str, list of urls, and qr code url (temp since we haven't deployed yet)
-    return render_template('index.html', qr_code_data=img_str, uploaded_files_urls=uploaded_files_urls, qr_code_url=request_url)
+    rendered_template = render_template('index.html', qr_code_data=img_str, uploaded_files_urls=uploaded_files_urls, qr_code_url=request_url, session=user_id)
+    response = make_response(rendered_template)
+    if not request.cookies.get('user_id'):
+        response.set_cookie('user_id', user_id)
+    return response
 
 # This route is used to upload files to the server
 @app.route('/upload', methods=['GET', 'POST'])
@@ -97,10 +112,8 @@ def upload_file():
                 print(f"Converted HEIC to PNG: {filename}")
 
             # Append the new file URL to the list in the session
-            if 'uploaded_files_urls' not in session:
-                session['uploaded_files_urls'] = []
-            session['uploaded_files_urls'].append(url_for('static', filename=f'images/{filename}'))
-            session.modified = True  # Ensure the session is marked as modified
+            print(sessions)
+            sessions[session_id].append(url_for('static', filename=f'images/{filename}'))
 
     # Return the upload page
     return render_template('upload.html')
@@ -108,8 +121,8 @@ def upload_file():
 @app.route('/reset')
 def reset_session():
     # This is hooked up with a button on the front end to reset the session (a.k.a clean images uploaded)
-    session.pop('user_id', None)  # Remove the current session ID
-    session.pop('uploaded_files_urls', None)  # Clear the list of uploaded files
+    # session.pop('user_id', None)  # Remove the current session ID
+    # session.pop('uploaded_files_urls', None)  # Clear the list of uploaded files
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
