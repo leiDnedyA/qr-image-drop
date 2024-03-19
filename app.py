@@ -49,13 +49,12 @@ sessions = {}
 @app.route('/')
 def index():
     user_id_cookie = request.cookies.get('user_id')
-    if not user_id_cookie:
+    if not user_id_cookie or not user_id_cookie in sessions:
         # Set up session
         user_id = str(uuid.uuid4())
         sessions[user_id] = []
     else:
         user_id = user_id_cookie
-    print(user_id_cookie)
 
     # Generate QR code
     qr = qrcode.QRCode(
@@ -84,7 +83,7 @@ def index():
     # Return the qr str, list of urls, and qr code url (temp since we haven't deployed yet)
     rendered_template = render_template('index.html', qr_code_data=img_str, uploaded_files_urls=uploaded_files_urls, qr_code_url=request_url, session=user_id)
     response = make_response(rendered_template)
-    if not request.cookies.get('user_id'):
+    if not request.cookies.get('user_id') or request.cookies.get('user_id') != user_id:
         response.set_cookie('user_id', user_id)
     return response
 
@@ -123,7 +122,9 @@ def reset_session():
     # This is hooked up with a button on the front end to reset the session (a.k.a clean images uploaded)
     # session.pop('user_id', None)  # Remove the current session ID
     # session.pop('uploaded_files_urls', None)  # Clear the list of uploaded files
-    return redirect(url_for('index'))
+    response = make_response(redirect(url_for('index')))
+    response.set_cookie('user_id', '', expires=0)
+    return response
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8080)
