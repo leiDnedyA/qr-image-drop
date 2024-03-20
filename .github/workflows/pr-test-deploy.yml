@@ -24,8 +24,6 @@ jobs:
           rm -rf qr-image-drop-test
           mkdir qr-image-drop-test
           cd qr-image-drop-test
-          # git clone -b ${{ github.head_ref }} https://github.com/${{ github.repository }}.git .
-          #
           git clone https://github.com/${{ github.repository }}.git .
           git pull
           git checkout UI-updates
