@@ -49,5 +49,5 @@ jobs:
             issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
-            body: 'Reviewers can check the deployed version of the merging branch at http://www.qrpigeon.pics:5000'
+            body: '🕊️ Reviewers and collaborators can check the deployed version of the merging branch at http://www.qrpigeon.pics:5000. Please note that this link will only be accessible until the branch is merged.'
           })
