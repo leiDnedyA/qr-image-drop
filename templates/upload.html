@@ -3,16 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <title>File Upload</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="static/css/style.css">
 </head>
 <body>
     <div class="upload-container">
-        <h1>Upload your file</h1>
+        <img src="static/assets/logo.svg" alt="Logo" class="logo">
+        <h1 class="upload-title">Upload your file</h1>
         <form action="" method="post" enctype="multipart/form-data" class="upload-form">
-            <label for="file-input" class="file-label">Choose a file</label>
+            <label for="file-input" class="file-label">✉️ Choose a file</label>
             <input type="file" name="file" id="file-input" onchange="handleFileSelect(event)">
             <p id="file-name"></p>
-            <input type="submit" value="Upload" id="upload-button">
+            <input type="submit" value="🪽 Upload" id="upload-button" class="button">
         </form>
     </div>
 

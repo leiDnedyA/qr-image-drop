@@ -69,7 +69,7 @@ def index():
 
     qr.add_data(request_url)
     qr.make(fit=True)
-    img = qr.make_image(fill_color="black", back_color="white")
+    img = qr.make_image(fill_color="#000", back_color="#eda400")
     
     # Make it a base64 string
     buffered = BytesIO()

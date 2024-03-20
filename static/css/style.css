@@ -1,8 +1,20 @@
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap");
+
+:root {
+  --accent-color: #eda400;
+  --accent-color-dark: #6f7d8c;
+}
+
+
 body {
-  font-family: Arial, sans-serif;
+  font-family: "Bricolage Grotesque", sans-serif;
   background-color: #f5f5f5;
   margin: 0;
   padding: 0;
+}
+
+p {
+  font-size: 20px;
 }
 
 .container {
@@ -18,6 +30,17 @@ header {
   margin-bottom: 20px;
 }
 
+.logo-title {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  width: 150px;
+  height: 150px;
+  margin-right: 10px;
+}
+
 h1 {
   font-size: 24px;
   color: #333;
@@ -28,12 +51,25 @@ h1 {
 }
 
 button {
-  background-color: #333;
-  color: #fff;
+  background-color: #eda400;
+  color: #000;
   border: none;
   padding: 10px 20px;
   margin-left: 10px;
   cursor: pointer;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  border-radius: 20px;
+}
+
+.upload-button {
+  background-color: #eda400;
+  color: #000;
+  border: none;
+  padding: 10px 20px;
+  margin-left: 10px;
+  cursor: pointer;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  border-radius: 20px;
 }
 
 .reset-form {
@@ -42,12 +78,14 @@ button {
 
 .qr-code {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 40px;
 }
 
 .qr-code img {
-  max-width: 200px;
+  max-width: 400px;
   margin: 10px 0;
+  box-shadow: 0 2px 10px var(--accent-color-dark);
+  border-radius: 20px;
 }
 
 .qr-code-url {
@@ -55,22 +93,37 @@ button {
   color: #666;
 }
 
+
 .uploaded-files {
   margin-top: 20px;
+  margin-bottom: 40px;
+}
+
+.uploaded-files h2 {
+  margin-bottom: 40px;
+}
+
+.file-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-gap: 20px;
 }
 
 .file-container {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  margin-bottom: 20px;
+  align-items: center;
+  text-align: center;
+
 }
 
 .file-container img {
-  max-width: 100%;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  height: auto;
+  border-radius: 20px;
+  box-shadow: 0 2px 20px var(--accent-color);
   margin-bottom: 10px;
+
 }
 
 .download-button {
@@ -78,10 +131,10 @@ button {
   color: #fff;
   border: none;
   padding: 10px 20px;
-  border-radius: 4px;
+  border-radius: 20px;
   text-decoration: none;
   white-space: nowrap;
-  align-self: flex-start;
+  margin-top: 15px;
 }
 
 /* Styles for the upload page */
@@ -92,20 +145,23 @@ button {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: flex-start;
-  min-height: 100vh;
+  align-items: center;
+  min-height: 90vh;
   background-color: #f5f5f5;
   padding: 20px;
 }
 
 .upload-container h1 {
   margin-bottom: 20px;
+  font-size: 60px;
+
 }
+
 
 .upload-form {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
 }
 
 input[type="file"] {
@@ -113,13 +169,14 @@ input[type="file"] {
 }
 
 .file-label {
-  display: inline-block;
-  background-color: #333;
-  color: #fff;
+  background-color: #eda400;
+  color: #000;
+  border: none;
   padding: 10px 20px;
-  border-radius: 4px;
   cursor: pointer;
-  margin-bottom: 10px;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  border-radius: 20px;
+  font-size: 50px;
 }
 
 #file-name {
@@ -127,14 +184,39 @@ input[type="file"] {
 }
 
 #upload-button {
-  background-color: #333;
-  color: #fff;
+  background-color: #eda400;
+  color: #000;
   border: none;
   padding: 10px 20px;
-  border-radius: 4px;
   cursor: pointer;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  border-radius: 20px;
+  font-size: 50px;
 }
 
 #upload-button.selected {
   background-color: #4CAF50;
+}
+
+@media (max-width: 768px) {
+  .upload-container {
+    max-width: 90%;
+    margin: 0 auto; 
+  }
+
+	.upload-container h1 {
+    font-size: 50px;
+    text-align: center;
+    margin-bottom: 100px;
+  }
+
+  #upload-button {
+    font-size: 20px;
+    padding: 20px 25px;
+  }
+
+  .file-label {
+    font-size: 40px;
+    padding: 40px 50px;
+  }
 }
