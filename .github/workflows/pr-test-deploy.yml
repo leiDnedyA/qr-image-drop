@@ -32,6 +32,8 @@ jobs:
           mkdir -p static/images/
           ./Testing/bin/pip3 install -r requirements.txt 
           ./Testing/bin/pip3 install gunicorn
+          pkill -f ":8080"
+          echo "made it here :)"
           if pkill -f ":5000"; then
             echo "Processes running on port 5000 were killed successfully."
           else
