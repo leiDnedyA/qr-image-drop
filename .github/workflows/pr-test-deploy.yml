@@ -23,7 +23,9 @@ jobs:
         script: |
           mkdir -p qr-image-drop-test
           cd qr-image-drop-test
-          git clone -b UI-updates https://github.com/${{ github.repository }}.git .
+          # git clone -b ${{ github.head_ref }} https://github.com/${{ github.repository }}.git .
+          git clone https://github.com/${{ github.repository }}.git .
+          git checkout UI-updates
           python3 -m venv Testing
           source Testing/bin/activate
           mkdir -p static/images/
