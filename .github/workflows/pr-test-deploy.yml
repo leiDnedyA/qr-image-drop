@@ -25,6 +25,7 @@ jobs:
           cd qr-image-drop-test
           # git clone -b ${{ github.head_ref }} https://github.com/${{ github.repository }}.git .
           git clone https://github.com/${{ github.repository }}.git .
+          git pull
           git checkout UI-updates
           python3 -m venv Testing
           source Testing/bin/activate
