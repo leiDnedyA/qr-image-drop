@@ -32,7 +32,7 @@ jobs:
           mkdir -p static/images/
           ./Testing/bin/pip3 install -r requirements.txt 
           ./Testing/bin/pip3 install gunicorn
-          pgrep -f test-run | tr ' ' '\n' | cut -d$'\n' -f1 | xargs kill
+          pgrep -f test-run | tr ' ' '\n' | cut -d$'\n' -f1 | xargs kill > kill.out 2> kill.err < /dev/null &
           nohup ./Testing/bin/gunicorn -n test-run --bind 0.0.0.0:5000 app:app > nohup.out 2> nohup.err < /dev/null &
 
   comment_on_pr:
