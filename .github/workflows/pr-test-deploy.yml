@@ -3,6 +3,11 @@ name: PR Test Deploy
 on:
   pull_request:
     branches: [ master ]
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - edited
 
 jobs:
   test_deploy:
