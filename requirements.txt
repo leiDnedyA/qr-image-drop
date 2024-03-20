@@ -1,7 +1,7 @@
 APScheduler==3.10.4
 blinker==1.7.0
 click==8.1.7
-flask==3.0.2
+Flask==3.0.2
 gunicorn==21.2.0
 HEIC2PNG==1.1.4
 importlib-metadata==7.0.2
