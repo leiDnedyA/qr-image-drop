@@ -18,5 +18,6 @@ jobs:
         script: |
           cd qr-image-drop
           git pull
+          mkdir -p static/images/
           pkill gunicorn
           ./prod.sh sudo?

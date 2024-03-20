@@ -21,6 +21,7 @@ jobs:
           git clone -b ${{ github.head_ref }} https://github.com/${{ github.repository }}.git .
           python3 -m venv Testing
           source Testing/bin/activate
+          mkdir -p static/images/
           pip install -r requirements.txt
           pip install gunicorn
           nohup gunicorn --bind 0.0.0.0:5000 app:app &
