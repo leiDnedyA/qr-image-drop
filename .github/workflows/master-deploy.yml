@@ -20,4 +20,4 @@ jobs:
           git pull
           mkdir -p static/images/
           pkill gunicorn
-          ./prod.sh sudo?
+          ./prod.sh

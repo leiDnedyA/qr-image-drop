@@ -32,13 +32,6 @@ jobs:
           mkdir -p static/images/
           ./Testing/bin/pip3 install -r requirements.txt 
           ./Testing/bin/pip3 install gunicorn
-          lsof -ti :5000 | xargs kill -9
-          echo "made it here :)"
-          # if pkill -f ":5000"; then
-          #   echo "Processes running on port 5000 were killed successfully."
-          # else
-          #   echo "No processes found running on port 5000."
-          # fi
           pgrep -f test-run | tr ' ' '\n' | cut -d$'\n' -f1 | xargs kill
           nohup ./Testing/bin/gunicorn -n test-run --bind 0.0.0.0:5000 app:app > nohup.out 2> nohup.err < /dev/null &
 
