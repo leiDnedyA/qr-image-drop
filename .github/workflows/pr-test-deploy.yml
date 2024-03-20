@@ -32,8 +32,7 @@ jobs:
           mkdir -p static/images/
           ./Testing/bin/pip3 install -r requirements.txt 
           ./Testing/bin/pip3 install gunicorn
-          pkill -f ":5000"
-          echo "pkill successful"
+          pkill -f ":5000" && echo "Processes were killed successfully." || echo "No processes found to kill."
           nohup ./Testing/bin/gunicorn --bind 0.0.0.0:5000 app:app > nohup.out 2> nohup.err < /dev/null &
 
   comment_on_pr:
