@@ -14,9 +14,9 @@
                 <h1>Upload and Share Files</h1>
             </div>
             <div class="buttons">
-                <button onclick="window.location.reload();">Refresh</button>
+                <button onclick="window.location.reload();">🕊️ Refresh</button>
                 <form action="/reset" method="get" class="reset-form">
-                    <button type="submit">Reset Session</button>
+                    <button type="submit">🪦 Reset Session</button>
                 </form>
             </div>
         </header>
@@ -24,7 +24,7 @@
             <section class="qr-code">
                 <p>Scan the QR code to upload:</p>
                 <img src="data:image/png;base64,{{ qr_code_data }}" alt="QR Code">
-                <p class="qr-code-url">QR Code URL (Testing only): <a target="_blank" href="{{ qr_code_url }}">here.</a></p>
+                <p class="qr-code-url">QR Code URL: <a target="_blank" href="{{ qr_code_url }}">here.</a></p>
             </section>
             <section class="uploaded-files">
                 <h2>Uploaded Files:</h2>
@@ -33,7 +33,7 @@
                     {% for file_url in uploaded_files_urls %}
                     <div class="file-container">
                         <img src="{{ file_url }}" alt="Uploaded File">
-                        <a href="{{ file_url }}" download class="download-button">Download</a>
+                        <a href="{{ file_url }}" download class="download-button">🛬 Download</a>
                     </div>
                     {% endfor %}
                 </div>
