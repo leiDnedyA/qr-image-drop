@@ -67,9 +67,11 @@ def index():
     # Generate QR code with the URL to upload files
     request_url = f'{request.url_root}upload?session_id={user_id}'
 
+    # request_url = f'{request.url_root}upload?session_id=test' # use this to test invalid session handling
+
     qr.add_data(request_url)
     qr.make(fit=True)
-    img = qr.make_image(fill_color="black", back_color="white")
+    img = qr.make_image(fill_color="#000", back_color="#eda400")
     
     # Make it a base64 string
     buffered = BytesIO()
@@ -92,6 +94,9 @@ def index():
 def upload_file():
     session_id = request.args.get('session_id', '')
 
+    if not session_id in sessions:
+        return make_response('<h1>Invalid session, press "Reset Session" button on the main page and try again</h1>')
+
     # Check if the session ID is valid
     if request.method == 'POST':
         file = request.files.get('file')
@@ -112,9 +117,10 @@ def upload_file():
 
             # Append the new file URL to the list in the session
             print(sessions)
-            sessions[session_id].append(url_for('static', filename=f'images/{filename}'))
+            if session_id in sessions:
+                sessions[session_id].append(url_for('static', filename=f'images/{filename}'))
 
-    # Return the upload page
+        # Return the upload page
     return render_template('upload.html')
 
 @app.route('/reset')
