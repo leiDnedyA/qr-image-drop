@@ -27,7 +27,7 @@ jobs:
           python3 -m venv Testing
           source Testing/bin/activate
           mkdir -p static/images/
-          ./Testing/bin/pip3 install -r requirements.txt
+          ./Testing/bin/pip3 install -r requirements.txt 
           ./Testing/bin/pip3 install gunicorn
           nohup ./Testing/bin/gunicorn --bind 0.0.0.0:5000 app:app &
 
