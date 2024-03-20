@@ -1,0 +1,43 @@
+name: PR Test Deploy
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test_deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: SSH into Azure VM
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.IP }}
+        username: ayden
+        password: ${{ secrets.VM_Pass }}
+        script: |
+          mkdir -p qr-image-drop-test
+          cd qr-image-drop-test
+          git clone -b ${{ github.head_ref }} https://github.com/${{ github.repository }}.git .
+          python3 -m venv Testing
+          source Testing/bin/activate
+          pip install -r requirements.txt
+          pip install gunicorn
+          nohup gunicorn --bind 0.0.0.0:5000 app:app &
+
+  comment_on_pr:
+    runs-on: ubuntu-latest
+    needs: test_deploy
+
+    steps:
+    - name: Comment on PR
+      uses: actions/github-script@v3
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          github.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: 'Reviewers can check the deployed version of the merging branch at http://www.qrpigeon.pics:5000'
+          })
