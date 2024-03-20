@@ -2,7 +2,7 @@ name: PR Test Deploy
 
 on:
   pull_request:
-    branches: [ master ]
+    branches: [ UI-updates ]
     types:
       - opened
       - synchronize
