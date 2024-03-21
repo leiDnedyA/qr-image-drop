@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>QR Pigeon</title>
@@ -7,6 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="static/assets/favicon.png">
 </head>
+
 <body>
     <div class="container">
         <header>
@@ -33,8 +35,10 @@
                 <div class="file-grid">
                     {% for file_url in uploaded_files_urls %}
                     <div class="file-container">
-                        <img src="{{ file_url }}" alt="Uploaded File">
+                        <img src="{{ file_url }}" class="uploaded-image" alt="Uploaded File">
                         <a href="{{ file_url }}" download class="download-button">🛬 Download</a>
+                        <button onclick="copyImageToClipboard(this)" data-img-src="{{ file_url }}"
+                            class="copy-button">📋 Copy</button>
                     </div>
                     {% endfor %}
                 </div>
@@ -44,5 +48,45 @@
             </section>
         </main>
     </div>
+    <script>
+        async function convertImageToPNG(blob) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = function () {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    canvas.toBlob(resolve, 'image/png');
+                };
+                img.onerror = reject;
+                img.src = URL.createObjectURL(blob);
+            });
+        }
+
+        async function copyImageToClipboard(buttonElement) {
+            try {
+                const imgSrc = buttonElement.getAttribute('data-img-src');
+                const response = await fetch(imgSrc);
+                let blob = await response.blob();
+                // Convert to PNG if the original image is not in a supported format
+                if (blob.type !== 'image/png') {
+                    blob = await convertImageToPNG(blob);
+                }
+                await navigator.clipboard.write([
+                    new ClipboardItem({
+                        'image/png': blob
+                    })
+                ]);
+                alert('Image copied to clipboard!');
+            } catch (error) {
+                console.error('Error copying image to clipboard', error);
+                alert('Failed to copy image to clipboard.');
+            }
+        }
+    </script>
+
 </body>
+
 </html>
