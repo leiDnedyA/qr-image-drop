@@ -135,6 +135,11 @@ button {
   box-shadow: 0 2px 40px var(--accent-color);
 }
 
+.button-container {
+  display: flex;
+  justify-content: space-between;
+}
+
 .download-button {
   background-color: #333;
   color: #fff;

@@ -36,9 +36,10 @@
                     {% for file_url in uploaded_files_urls %}
                     <div class="file-container">
                         <img src="{{ file_url }}" class="uploaded-image" alt="Uploaded File">
-                        <a href="{{ file_url }}" download class="download-button">🛬 Download</a>
-                        <button onclick="copyImageToClipboard(this)" data-img-src="{{ file_url }}"
-                            class="copy-button">📋 Copy</button>
+                        <div class="button-container">
+                            <a href="{{ file_url }}" download class="download-button">🛬 Download</a>
+                            <button onclick="copyImageToClipboard(this)" data-img-src="{{ file_url }}" class="copy-button">📋 Copy</button>
+                        </div>
                     </div>
                     {% endfor %}
                 </div>
