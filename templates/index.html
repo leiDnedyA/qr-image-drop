@@ -1,116 +1,162 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>QR Pigeon</title>
-    <link rel="stylesheet" href="static/css/style.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="static/assets/favicon.png">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-</head>
+    <link rel="stylesheet" href="static/css/style.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="static/assets/favicon.png" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
+  </head>
 
-<body>
+  <body>
     <div class="container">
-        <header>
-            <div class="logo-title">
-                <img src="/static/assets/logo.svg" alt="Logo" class="logo">
-                <h1>Upload and Share Files</h1>
-            </div>
-            <div class="buttons">
-                <button onclick="window.location.reload();">🕊️ Refresh</button>
-                <form action="/reset" method="get" class="reset-form">
-                    <button type="submit">🪦 Reset Session</button>
-                </form>
-            </div>
-        </header>
-        <main>
-            <div class="info-button">
-                <i class="fa fa-info"></i>
+      <header>
+        <div class="logo-title">
+          <img src="/static/assets/logo.svg" alt="Logo" class="logo" />
+          <h1>Upload and Share Files</h1>
+        </div>
+        <div class="buttons">
+          <button onclick="window.location.reload();">🕊️ Refresh</button>
+          <form action="/reset" method="get" class="reset-form">
+            <button type="submit">🪦 Reset Session</button>
+          </form>
+        </div>
+      </header>
+      <main>
+        <div class="info-button">
+          <i class="fa fa-info"></i>
+        </div>
+        <div class="info-box" id="infoBox">
+          <h3>Instructions</h3>
+          <p>1. Scan the QR code with your mobile device.</p>
+          <p>2. On the upload page, select an image to upload.</p>
+          <p>3. The uploaded image will appear on the main page.</p>
+          <p>4. Refresh the page to view the uploaded images.</p>
+          <p>
+            5. Click the "Reset Session" button to clear all uploaded images.
+          </p>
+        </div>
+        <section class="qr-code">
+          <p>Scan the QR code to upload:</p>
+          <img src="data:image/png;base64,{{ qr_code_data }}" alt="QR Code" />
+          <p class="qr-code-url">
+            QR Code URL:
+            <a target="_blank" style="color: #000" href="{{ qr_code_url }}"
+              >here.</a
+            >
+          </p>
+        </section>
+        <section class="uploaded-files">
+          <h2>Uploaded Files:</h2>
+          {% if uploaded_files_urls %}
+          <div class="file-grid">
+            {% for file_url in uploaded_files_urls %}
+            <div class="file-container">
+              <img
+                src="{{ file_url }}"
+                class="uploaded-image"
+                alt="Uploaded File"
+              />
+              <div class="button-container">
+                <a href="{{ file_url }}" download class="download-button"
+                  >🛬 Download</a
+                >
+                <button
+                  onclick="copyImageToClipboard(this)"
+                  data-img-src="{{ file_url }}"
+                  class="copy-button"
+                >
+                  📋 Copy
+                </button>
               </div>
-              <div class="info-box" id="infoBox">
-                <h3>Instructions</h3>
-                <p>1. Scan the QR code with your mobile device.</p>
-                <p>2. On the upload page, select an image to upload.</p>
-                <p>3. The uploaded image will appear on the main page.</p>
-                <p>4. Refresh the page to view the uploaded images.</p>
-                <p>5. Click the "Reset Session" button to clear all uploaded images.</p>
-              </div>
-            <section class="qr-code">
-                <p>Scan the QR code to upload:</p>
-                <img src="data:image/png;base64,{{ qr_code_data }}" alt="QR Code">
-                <p class="qr-code-url">QR Code URL: <a target="_blank" style="color: #000"  href="{{ qr_code_url }}">here.</a></p>
-            </section>
-            <section class="uploaded-files">
-                <h2>Uploaded Files:</h2>
-                {% if uploaded_files_urls %}
-                <div class="file-grid">
-                    {% for file_url in uploaded_files_urls %}
-                    <div class="file-container">
-                        <img src="{{ file_url }}" class="uploaded-image" alt="Uploaded File">
-                        <div class="button-container">
-                            <a href="{{ file_url }}" download class="download-button">🛬 Download</a>
-                            <button onclick="copyImageToClipboard(this)" data-img-src="{{ file_url }}" class="copy-button">📋 Copy</button>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <p>No files uploaded yet.</p>
-                {% endif %}
-            </section>
-        </main>
-        <footer>
-          <p id="footer-text">Site by <a style="color: #000" href="https://edwardgaibor.me/">Edward Gaibor</a> and <a style="color: #000" href="https://www.aydendiel.dev/">Ayden Diel</a> | <a style="color: #000;"href="https://www.buymeacoffee.com/qrpigeon">Buy us a coffee!</a>☕</p>
-        </footer>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <p>No files uploaded yet.</p>
+          {% endif %}
+        </section>
+      </main>
+      <footer>
+        <p id="footer-text">
+          Site by
+          <a style="color: #000" href="https://edwardgaibor.me/"
+            >Edward Gaibor</a
+          >
+          and
+          <a style="color: #000" href="https://www.aydendiel.dev/"
+            >Ayden Diel</a
+          >
+          |
+          <a style="color: #000" href="https://www.buymeacoffee.com/qrpigeon"
+            >Buy us a coffee!</a
+          >☕
+        </p>
+      </footer>
     </div>
     <script>
-        document.querySelector('.info-button').addEventListener('click', function() {
-            var infoBox = document.getElementById('infoBox');
-            if (infoBox.style.display === "none") {
-                infoBox.style.display = "block";
-            } else {
-                infoBox.style.display = "none";
-            }
+      document
+        .querySelector(".info-button")
+        .addEventListener("click", function (event) {
+          event.stopPropagation();
+          var infoBox = document.getElementById("infoBox");
+          infoBox.style.display =
+            infoBox.style.display === "none" ? "block" : "none";
         });
-        async function convertImageToPNG(blob) {
-            return new Promise((resolve, reject) => {
-                const img = new Image();
-                img.onload = function () {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0);
-                    canvas.toBlob(resolve, 'image/png');
-                };
-                img.onerror = reject;
-                img.src = URL.createObjectURL(blob);
-            });
-        }
 
-        async function copyImageToClipboard(buttonElement) {
-            try {
-                const imgSrc = buttonElement.getAttribute('data-img-src');
-                const response = await fetch(imgSrc);
-                let blob = await response.blob();
-                // Convert to PNG if the original image is not in a supported format
-                if (blob.type !== 'image/png') {
-                    blob = await convertImageToPNG(blob);
-                }
-                await navigator.clipboard.write([
-                    new ClipboardItem({
-                        'image/png': blob
-                    })
-                ]);
-                alert('Image copied to clipboard!');
-            } catch (error) {
-                console.error('Error copying image to clipboard', error);
-                alert('Failed to copy image to clipboard.');
-            }
+      document.addEventListener("click", function (event) {
+        var infoBox = document.getElementById("infoBox");
+        var infoButton = document.querySelector(".info-button");
+        var targetElement = event.target;
+
+        if (
+          !infoBox.contains(targetElement) &&
+          !infoButton.contains(targetElement)
+        ) {
+          infoBox.style.display = "none";
         }
+      });
+
+      async function convertImageToPNG(blob) {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.onload = function () {
+            const canvas = document.createElement("canvas");
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0);
+            canvas.toBlob(resolve, "image/png");
+          };
+          img.onerror = reject;
+          img.src = URL.createObjectURL(blob);
+        });
+      }
+
+      async function copyImageToClipboard(buttonElement) {
+        try {
+          const imgSrc = buttonElement.getAttribute("data-img-src");
+          const response = await fetch(imgSrc);
+          let blob = await response.blob();
+          // Convert to PNG if the original image is not in a supported format
+          if (blob.type !== "image/png") {
+            blob = await convertImageToPNG(blob);
+          }
+          await navigator.clipboard.write([
+            new ClipboardItem({
+              "image/png": blob,
+            }),
+          ]);
+          alert("Image copied to clipboard!");
+        } catch (error) {
+          console.error("Error copying image to clipboard", error);
+          alert("Failed to copy image to clipboard.");
+        }
+      }
     </script>
-
-</body>
-
+  </body>
 </html>
