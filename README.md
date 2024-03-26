@@ -6,8 +6,7 @@ Tool for quickly sharing photos between devices via QR codes!
 
 ## How to Use
 
-<img src="./static/readme/tutorial.png" width="650">
-![How to Use](./static/readme/tutorial.png)
+<img src="./static/readme/tutorial.png" width="500">
 
 ## Features
 
