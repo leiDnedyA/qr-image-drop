@@ -125,6 +125,8 @@ def upload_file():
     # Check if the session ID is valid
     if request.method == 'POST':
         file = request.files.get('file')
+        if file.filename == '':
+            return render_template('upload.html',error='Please upload a file')
         if file and file.filename != '':
             # Save the file to the server
             filename = secure_filename(file.filename)
