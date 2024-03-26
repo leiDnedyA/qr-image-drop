@@ -6,3 +6,5 @@
 
 venv/
 __pycache__/
+
+.github/workflows/pr-test-deploy.yml
