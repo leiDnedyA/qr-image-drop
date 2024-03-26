@@ -92,6 +92,10 @@
         fileNameElement.textContent = fileName;
         uploadButton.classList.add("selected");
       }
+      {% if error %}
+      window.onload= function(){
+        alert("{{error}}")
+      };
     </script>
   </body>
 </html>
