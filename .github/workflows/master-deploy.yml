@@ -19,4 +19,4 @@ jobs:
           cd qr-image-drop
           echo ${{ secrets.VM_Pass }} | sudo -S pkill gunicorn
           git pull
-          echo ${{ secrets.VM_Pass }} | sudo -S ./prod.sh
+          echo ${{ secrets.VM_Pass }} | sudo -S (./prod.sh 2> /dev/null &)
