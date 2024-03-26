@@ -13,6 +13,10 @@
   </head>
 
   <body>
+    <div class="counter-container">
+      <div id="counter" class="counter-number"></div>
+      <div class="counter-text">Pigeons flew so far <i class="fa fa-wind"></i></div>
+    </div>
     <div class="container">
       <header>
         <div class="logo-title">
@@ -157,6 +161,19 @@
           alert("Failed to copy image to clipboard.");
         }
       }
+
+
+      // Function to fetch and update the counter value
+      function updateCounter() {
+        fetch('/counter')
+          .then(response => response.text())
+          .then(count => {
+            document.getElementById('counter').textContent = count;
+          });
+      }
+
+      // Call the updateCounter function when the page loads
+      window.addEventListener('load', updateCounter);
     </script>
   </body>
 </html>
