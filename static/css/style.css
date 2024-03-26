@@ -140,6 +140,17 @@ button {
   justify-content: space-between;
 }
 
+.copy-button {
+  background-color: #333;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  text-decoration: none;
+  white-space: nowrap;
+  margin-top: 15px;
+}
+
 .download-button {
   background-color: #333;
   color: #fff;
@@ -253,7 +264,7 @@ input[type="file"] {
   }
 
   .file-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(1, 1fr);
   }
 
   .logo {
