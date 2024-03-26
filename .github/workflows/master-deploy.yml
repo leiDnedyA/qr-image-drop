@@ -19,4 +19,4 @@ jobs:
           cd qr-image-drop
           echo ${{ secrets.VM_Pass }} | sudo -S pkill gunicorn
           git pull
-          ./prod.sh > nohup2.out 2> nohup2.err < /dev/null &
+          echo ${{ secrets.VM_Pass }} | sudo -S ./prod.sh
