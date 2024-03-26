@@ -17,6 +17,6 @@ jobs:
         password: ${{ secrets.VM_Pass }}
         script: |
           cd qr-image-drop
-          echo ${{ secrets.VM_Pass }} | sudo -S pkill gunicorn
+          sudo pkill gunicorn
           git pull
-          echo ${{ secrets.VM_Pass }} | sudo -S ./prod.sh > nohup2.out 2> nohup2.err < /dev/null &
+          ./prod.sh > nohup2.out 2> nohup2.err < /dev/null &
