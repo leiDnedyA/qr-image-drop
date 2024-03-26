@@ -20,4 +20,4 @@ jobs:
           cd qr-image-drop
           echo ${{ secrets.VM_Pass }} | sudo -S pkill gunicorn
           git pull
-          echo ${{ secrets.VM_Pass }} | sudo -S timeout 1000 ./prod.sh
+          echo ${{ secrets.VM_Pass }} | sudo -S sh -c 'bash prod.sh'
