@@ -5,6 +5,17 @@
   --accent-color-dark: #6f7d8c;
 }
 
+/* Text Selection Color */
+::selection {
+	background-color: var(--accent-color);
+	color: var(--accent-color-dark);
+}
+
+::-moz-selection {
+	background-color: var(--accent-color);
+	color: var(--accent-color-dark);
+}
+
 
 body {
   font-family: "Bricolage Grotesque", sans-serif;
