@@ -19,5 +19,7 @@ jobs:
         script: |
           cd qr-image-drop
           echo ${{ secrets.VM_Pass }} | sudo -S pkill gunicorn
+          git stash
           git pull
+          git stash pop
           echo ${{ secrets.VM_Pass }} | sudo -S timeout 1000 ./prod.sh
