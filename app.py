@@ -150,6 +150,13 @@ def upload_file():
                 sessions[session_id].append(f'{GLOBAL_URL_ROOT}static/images/{filename}')
 
 
+            # Increment the counter value
+            counter_file = 'static/counter.txt'
+            with open(counter_file, 'r') as f:
+                count = int(f.read())
+            with open(counter_file, 'w') as f:
+                f.write(str(count + 1))
+
         # Return the upload page
     return render_template('upload.html')
 
@@ -164,6 +171,18 @@ def get_session_links():
 
     return jsonify(sessions[session_id])
     return ":)"
+
+
+@app.route('/counter')
+def get_counter():
+    counter_file = 'static/counter.txt'
+    if not os.path.exists(counter_file):
+        with open(counter_file, 'w') as f:
+            f.write('0')
+    with open(counter_file, 'r') as f:
+        count = f.read()
+    return count
+
 
 @app.route('/reset')
 def reset_session():
