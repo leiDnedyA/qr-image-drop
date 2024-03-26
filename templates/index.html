@@ -78,7 +78,7 @@
           </div>
           {% else %}
           <div id="file-grid" class="file-grid"></div>
-          <p>No files uploaded yet.</p>
+          <p id="no-files-yet">No files uploaded yet.</p>
           {% endif %}
         </section>
       </main>
@@ -125,6 +125,9 @@
           const response = await fetch(`./session_links?session_id=${sessionID}`);
           const responseJSON = await response.json();
           console.log(responseJSON);
+          if (responseJSON.length > 0) {
+            document.getElementById('no-files-yet').remove();
+          }
           for (const imageURL of responseJSON) {
             if (!currentImages.has(imageURL)) {
               currentImages.add(imageURL);
