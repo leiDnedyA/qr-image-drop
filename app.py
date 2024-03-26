@@ -114,6 +114,8 @@ def index():
         response.set_cookie('user_id', user_id)
     return response
 
+
+
 # This route is used to upload files to the server
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
@@ -150,6 +152,18 @@ def upload_file():
 
         # Return the upload page
     return render_template('upload.html')
+
+@app.route('/session_links', methods=['GET'])
+def get_session_links():
+    session_id = request.args.get('session_id')
+
+    if not session_id:
+        return make_response('Missing query param "session_id"', 400)
+    if not session_id in sessions:
+        return make_response('Session not found with provided ID', 404)
+
+    return jsonify(sessions[session_id])
+    return ":)"
 
 @app.route('/reset')
 def reset_session():

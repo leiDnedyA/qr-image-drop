@@ -53,7 +53,7 @@
         <section class="uploaded-files">
           <h2>Uploaded Files:</h2>
           {% if uploaded_files_urls %}
-          <div class="file-grid">
+          <div id="file-grid" class="file-grid">
             {% for file_url in uploaded_files_urls %}
             <div class="file-container">
               <img
@@ -77,6 +77,7 @@
             {% endfor %}
           </div>
           {% else %}
+          <div id="file-grid" class="file-grid"></div>
           <p>No files uploaded yet.</p>
           {% endif %}
         </section>
@@ -99,6 +100,73 @@
       </footer>
     </div>
     <script>
+      window.addEventListener('load', function () {
+        const currentImages = new Set();
+
+        // Add pre-loaded images to currImages set
+        const fileGrid = document.getElementById('file-grid');
+        for(const imageContainer of fileGrid.children) {
+          const imageElement = imageContainer.children[0];
+          currentImages.add(imageElement.src);
+        }
+
+        const splitCookie = document.cookie.split('=')
+        if (splitCookie.length < 2) {
+          alert('Invalid cookies, please click "Reset Session"');
+          return;
+        }
+        const sessionID = splitCookie[1];
+
+        // Poll endpoint for new uploads
+        const pollingDelay = 3000;
+        const pollingTimeoutMinutes = 10;
+
+        const intervalID = setInterval( async () => {
+          const response = await fetch(`./session_links?session_id=${sessionID}`);
+          const responseJSON = await response.json();
+          console.log(responseJSON);
+          for (const imageURL of responseJSON) {
+            if (!currentImages.has(imageURL)) {
+              currentImages.add(imageURL);
+
+              const imageElementString = `
+                <img
+                  src="${imageURL}"
+                  class="uploaded-image"
+                  alt="Uploaded File"
+                />
+                <div class="button-container">
+                  <a href="${imageURL}" download class="download-button"
+                    >🛬 Download</a
+                  >
+                  <button
+                    onclick="copyImageToClipboard(this)"
+                    data-img-src="${imageURL}"
+                    class="copy-button"
+                  >
+                    📋 Copy
+                  </button>
+                </div>
+                `;
+              const fileContainerElement = document.createElement('div');
+              fileContainerElement.classList.add('file-container');
+              fileContainerElement.innerHTML = imageElementString;
+
+              document.getElementById('file-grid').
+                appendChild(fileContainerElement);
+              
+            }
+          }
+        }, pollingDelay);
+
+        // Convert timeout to milliseconds
+        const pollingTimeout = pollingTimeoutMinutes * 1000 * 60;
+        setTimeout(() => {
+          clearInterval(intervalID);
+          alert('Session timeout, please refresh or click "Reset Session"');
+        }, pollingTimeout);
+      });
+
       document
         .querySelector(".info-button")
         .addEventListener("click", function (event) {
