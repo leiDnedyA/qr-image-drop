@@ -17,6 +17,6 @@ jobs:
         password: ${{ secrets.VM_Pass }}
         script: |
           cd qr-image-drop
+          echo ${{ secrets.VM_Pass }} | sudo -S pkill gunicorn
           git pull
-          pkill gunicorn
-          ./prod.sh
+          echo ${{ secrets.VM_Pass }} | sudo -S ./prod.sh
