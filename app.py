@@ -24,6 +24,22 @@ app.secret_key = 'very_secret_key'
 app.config['UPLOAD_FOLDER'] = 'static/images'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1000 * 1000
 
+def get_url_root(request):
+    """
+    Returns the URL root to use for generating qr codes, given a Flask request object.
+
+    Useful in case we are using a reverse-proxy with a different location and want
+    the upload page to contain the same location.
+    """
+    if "X-Full-Request-URL" in request.headers:
+        url_root = request.headers["X-Full-Request-URL"]
+    else:
+        url_root = request.url_root
+    return url_root
+
+# Used to store the URL for the home route to account for reverse proxies
+GLOBAL_URL_ROOT = None
+
 # Function to delete old files (right not it is every 5 minutes for every file older than 5 minutes)
 def cleanup_old_files():
     now = datetime.now()
@@ -64,8 +80,14 @@ def index():
         border=4,
     )
 
+
+    # Update the URL root based on requests made to "/"
+    url_root = get_url_root(request)
+    global GLOBAL_URL_ROOT
+    GLOBAL_URL_ROOT = url_root
+
     # Generate QR code with the URL to upload files
-    request_url = f'{request.url_root}upload?session_id={user_id}'
+    request_url = f'{url_root}upload?session_id={user_id}'
 
     # request_url = f'{request.url_root}upload?session_id=test' # use this to test invalid session handling
 
@@ -116,9 +138,10 @@ def upload_file():
                 print(f"Converted HEIC to PNG: {filename}")
 
             # Append the new file URL to the list in the session
-            print(sessions)
             if session_id in sessions:
-                sessions[session_id].append(url_for('static', filename=f'images/{filename}'))
+#                sessions[session_id].append(url_for('static', filename=f'images/{filename}'))
+                sessions[session_id].append(f'{GLOBAL_URL_ROOT}static/images/{filename}')
+
 
         # Return the upload page
     return render_template('upload.html')
