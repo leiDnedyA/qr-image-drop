@@ -15,15 +15,18 @@
   </head>
 
   <body>
-    <div class="counter-container">
-      <div id="counter" class="counter-number"></div>
-      <div class="counter-text">Pigeons flew so far <i class="fa fa-wind"></i></div>
-    </div>
+    <!-- <div class="counter-container"> -->
+      <!-- <div id="counter" class="counter-number"></div> -->
+      <!-- <div class="counter-text">Pigeons flew so far <i class="fa fa-wind"></i></div> -->
+    <!-- </div> -->
     <div class="container">
       <header>
         <div class="logo-title">
           <img src="/static/assets/logo.svg" alt="Logo" class="logo" />
-          <h1>Upload and Share Files</h1>
+          <div>
+            <h1>Upload and Share Files</h1>
+            <p id="counter-text" class="header-counter-text">:)</p>
+          </div>
         </div>
         <div class="buttons">
           <button onclick="window.location.reload();">🕊️ Refresh</button>
@@ -132,7 +135,10 @@
           const responseJSON = await response.json();
           console.log(responseJSON);
           if (responseJSON.length > 0) {
-            document.getElementById('no-files-yet').remove();
+            const noFilesYetText = document.getElementById('no-files-yet');
+            if (noFilesYetText) {
+              noFilesYetText.remove();
+            }
           }
           for (const imageURL of responseJSON) {
             if (!currentImages.has(imageURL)) {
@@ -163,6 +169,8 @@
 
               document.getElementById('file-grid').
                 appendChild(fileContainerElement);
+
+              updateCounter();
               
             }
           }
@@ -241,7 +249,13 @@
         fetch('/counter')
           .then(response => response.text())
           .then(count => {
-            document.getElementById('counter').textContent = count;
+            let counterHTML =  `${count} Pigeons Have Flown So Far <i class="fa fa-wind"></i>`
+            if (count === "1") {
+              counterHTML = `${count} Pigeon Has Flown So Far <i class="fa fa-wind"></i>`
+            }
+
+            document.getElementById('counter-text').innerHTML = counterHTML;
+            
           });
       }
 
