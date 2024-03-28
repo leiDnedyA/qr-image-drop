@@ -7,5 +7,4 @@
 venv/
 __pycache__/
 
-
-static/counter.txt
+/static/counter.txt
