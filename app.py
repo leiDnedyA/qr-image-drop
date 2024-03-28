@@ -1,7 +1,7 @@
 # Flask app
 from flask import Flask, make_response, render_template, request, redirect, url_for, jsonify
 from werkzeug.utils import secure_filename
-from flask_socketio import SocketIO, emit, join_room
+from flask_socketio import SocketIO, emit, join_room, leave_room
 
 import re
 
@@ -193,8 +193,16 @@ def handle_join_room(data):
 @socketio.on('share_qr')
 def handle_share_qr(data):
     qr_code_url = data['qr_code_url']
-    print(f'Received share_qr event')
-    emit('qr_code_shared', {'qr_code_url': qr_code_url}, broadcast=True, skip_sid=request.sid)
+    network_id = data['network_id']
+    print(f'Received share_qr event for network: {network_id}')
+    emit('qr_code_shared', {'qr_code_url': qr_code_url}, room=network_id, skip_sid=request.sid)
+
+@socketio.on('join_network')
+def handle_join_network(data):
+    network_id = data['network_id']
+    join_room(network_id)
+    print(f'Client joined network: {network_id}')
+
 
 @app.route('/session_links', methods=['GET'])
 def get_session_links():

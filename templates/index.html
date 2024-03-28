@@ -257,11 +257,22 @@
       const isMobile = '{{ is_mobile }}' === 'True';
       const qrCodeUrl = '{{ qr_code_url }}';
 
-      // Initialize PeerJS
-      const peer = new Peer();
-
       // Connect to the Flask-SocketIO server
       const socket = io();
+
+      // Variable to store the client's network identifier
+      let clientNetworkId = '';
+
+      // Get the client's network identifier (e.g., IP address)
+      fetch('https://api.ipify.org?format=json')
+        .then(response => response.json())
+        .then(data => {
+          clientNetworkId = data.ip;
+          socket.emit('join_network', { network_id: clientNetworkId });
+        })
+        .catch(error => {
+          console.error('Error retrieving client network identifier:', error);
+        });
 
       if (isMobile) {
         // Mobile device
@@ -271,7 +282,7 @@
           activateCooButton.addEventListener('click', () => {
             console.log('Activate COO button clicked');
             // Share the QR code URL with other devices on the same network
-            socket.emit('share_qr', { qr_code_url: qrCodeUrl });
+            socket.emit('share_qr', { qr_code_url: qrCodeUrl, network_id: clientNetworkId });
           });
         }
       } else {
