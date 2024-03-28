@@ -6,10 +6,13 @@
     <link rel="stylesheet" href="static/css/style.css" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" href="static/assets/favicon.png" />
+    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
     />
+
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
 
     <script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="qrpigeon" data-description="Support me on Buy me a coffee!" data-message="" data-color="#FF813F" data-position="Right" data-x_margin="18" data-y_margin="18"></script>
   </head>
@@ -55,6 +58,9 @@
               >here.</a
             >
           </p>
+          {% if is_mobile %}
+            <button id="activate-coo">Activate COO</button>
+          {% endif %}
         </section>
         <section class="uploaded-files">
           <h2>Uploaded Files:</h2>
@@ -247,6 +253,45 @@
 
       // Call the updateCounter function when the page loads
       window.addEventListener('load', updateCounter);
+
+      const isMobile = '{{ is_mobile }}' === 'True';
+      const qrCodeUrl = '{{ qr_code_url }}';
+      const sessionId = '{{ session }}';
+
+      // Initialize PeerJS
+      const peer = new Peer();
+
+      // Connect to the Flask-SocketIO server
+      const socket = io();
+
+      if (isMobile) {
+        // Mobile device
+        // Handle the "Activate COO" button click
+        const activateCooButton = document.getElementById('activate-coo');
+        if (activateCooButton) {
+          activateCooButton.addEventListener('click', () => {
+            // Share the QR code URL with other devices in the room
+            socket.emit('share_qr', { room: sessionId, qr_code_url: qrCodeUrl });
+            console.log('Sent share_qr event', sessionId, qrCodeUrl)
+          });
+        }
+      } else {
+        // Laptop or PC
+        socket.on('connect', () => {
+          // Join the room when the socket connection is established
+          socket.emit('join_room', { room: sessionId });
+        });
+
+        // Handle the shared QR code URL
+        socket.on('qr_code_shared', (data) => {
+          console.log('Received qr_code_shared event'); // Add this line
+          const sharedQrCodeUrl = data.qr_code_url;
+          const confirmation = confirm('A mobile device wants to share their QR code. Do you want to join?');
+          if (confirmation) {
+            window.location.href = sharedQrCodeUrl;
+          }
+        });
+      }
     </script>
   </body>
 </html>

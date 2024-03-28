@@ -1,6 +1,9 @@
 # Flask app
 from flask import Flask, make_response, render_template, request, redirect, url_for, jsonify
 from werkzeug.utils import secure_filename
+from flask_socketio import SocketIO, emit, join_room
+
+import re
 
 # File management
 from datetime import datetime, timedelta
@@ -23,6 +26,8 @@ app = Flask(__name__)
 app.secret_key = 'very_secret_key'
 app.config['UPLOAD_FOLDER'] = 'static/images'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1000 * 1000
+
+socketio = SocketIO(app)
 
 def get_url_root(request):
     """
@@ -67,6 +72,17 @@ sessions = {}
 
 @app.route('/')
 def index():
+
+    user_agent = request.headers.get('User-Agent', '')
+
+    device_type_match = re.search(r'\(([^;)]+)', user_agent)
+
+    device_type = device_type_match.group(1) if device_type_match else ''
+
+    is_mobile = device_type.lower() in ['iphone', 'android']
+
+    print(f"User agent: {device_type}")
+
     user_id_cookie = request.cookies.get('user_id')
     if not user_id_cookie or not user_id_cookie in sessions:
         # Set up session
@@ -108,7 +124,7 @@ def index():
     uploaded_files_urls = sessions[user_id]
 
     # Return the qr str, list of urls, and qr code url (temp since we haven't deployed yet)
-    rendered_template = render_template('index.html', qr_code_data=img_str, uploaded_files_urls=uploaded_files_urls, qr_code_url=request_url, session=user_id)
+    rendered_template = render_template('index.html', is_mobile=is_mobile, qr_code_data=img_str, uploaded_files_urls=uploaded_files_urls, qr_code_url=request_url, session=user_id)
     response = make_response(rendered_template)
     if not request.cookies.get('user_id') or request.cookies.get('user_id') != user_id:
         response.set_cookie('user_id', user_id)
@@ -160,6 +176,26 @@ def upload_file():
         # Return the upload page
     return render_template('upload.html')
 
+@socketio.on('connect')
+def handle_connect():
+    print('Client connected')
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    print('Client disconnected')
+
+@socketio.on('join_room')
+def handle_join_room(data):
+    room = data['room']
+    join_room(room)
+    print(f'Client joined room: {room}')
+
+@socketio.on('share_qr')
+def handle_share_qr(data):
+    room = data['room']
+    qr_code_url = data['qr_code_url']
+    emit('qr_code_shared', {'qr_code_url': qr_code_url}, room=room, skip_sid=request.sid)
+
 @app.route('/session_links', methods=['GET'])
 def get_session_links():
     session_id = request.args.get('session_id')
@@ -194,4 +230,4 @@ def reset_session():
     return response
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=8080)
+    socketio.run(app, debug=True, host='0.0.0.0', port=8080)
