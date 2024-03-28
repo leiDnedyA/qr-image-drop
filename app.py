@@ -192,9 +192,9 @@ def handle_join_room(data):
 
 @socketio.on('share_qr')
 def handle_share_qr(data):
-    room = data['room']
     qr_code_url = data['qr_code_url']
-    emit('qr_code_shared', {'qr_code_url': qr_code_url}, room=room, skip_sid=request.sid)
+    print(f'Received share_qr event')
+    emit('qr_code_shared', {'qr_code_url': qr_code_url}, broadcast=True, skip_sid=request.sid)
 
 @app.route('/session_links', methods=['GET'])
 def get_session_links():

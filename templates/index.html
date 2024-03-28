@@ -256,7 +256,6 @@
 
       const isMobile = '{{ is_mobile }}' === 'True';
       const qrCodeUrl = '{{ qr_code_url }}';
-      const sessionId = '{{ session }}';
 
       // Initialize PeerJS
       const peer = new Peer();
@@ -270,21 +269,16 @@
         const activateCooButton = document.getElementById('activate-coo');
         if (activateCooButton) {
           activateCooButton.addEventListener('click', () => {
-            // Share the QR code URL with other devices in the room
-            socket.emit('share_qr', { room: sessionId, qr_code_url: qrCodeUrl });
-            console.log('Sent share_qr event', sessionId, qrCodeUrl)
+            console.log('Activate COO button clicked');
+            // Share the QR code URL with other devices on the same network
+            socket.emit('share_qr', { qr_code_url: qrCodeUrl });
           });
         }
       } else {
         // Laptop or PC
-        socket.on('connect', () => {
-          // Join the room when the socket connection is established
-          socket.emit('join_room', { room: sessionId });
-        });
-
         // Handle the shared QR code URL
         socket.on('qr_code_shared', (data) => {
-          console.log('Received qr_code_shared event'); // Add this line
+          console.log('Received qr_code_shared event');
           const sharedQrCodeUrl = data.qr_code_url;
           const confirmation = confirm('A mobile device wants to share their QR code. Do you want to join?');
           if (confirmation) {
