@@ -306,44 +306,7 @@ footer {
 
 }
 
-.counter-container {
-  position: fixed;
-  top: 20px;
-  left: 20px;
-  background-color: var(--accent-color);
-  color: #000;
-  padding: 10px;
-  border-radius: 5px;
-  text-align: center;
-  margin-top: 2%;
-  margin-left: 2%;
-}
-
-.counter-number {
-  font-size: 36px;
-  font-weight: bold;
-}
-
-.counter-text {
-  font-size: 14px;
-  opacity: 0.8;
-}
-
 @media (max-width: 768px) {
-  .counter-container {
-    top: 10px;
-    left: 10px;
-
-  }
-
-  .counter-number {
-    font-size: 24px;
-  }
-
-  .counter-text {
-    font-size: 12px;
-  }
-
   .upload-container {
     max-width: 90%;
     margin: 0 auto; 
@@ -384,7 +347,11 @@ footer {
   .logo-title h1 {
     font-size: 20px;
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 5px;
+  }
+
+  #counter-text {
+    font-size: 15px;
   }
 
   .qr-code img {
