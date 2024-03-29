@@ -26,7 +26,7 @@
     </div>
     <div class="upload-container">
       <img src="static/assets/logo.svg" alt="Logo" class="logo" />
-      <h1 class="upload-title">Upload your file</h1>
+      <h1 class="upload-title">Upload or Take a Picture</h1>
       <form
         action=""
         method="post"
@@ -88,10 +88,13 @@
       function handleFileSelect(event) {
         const fileInput = event.target;
         const fileName = fileInput.files[0].name;
-        const fileNameElement = document.getElementById("file-name");
         const uploadButton = document.getElementById("upload-button");
-        fileNameElement.textContent = fileName;
+        const selectImageButton = document.querySelector(".file-label");
+        selectImageButton.style = "border-style: solid;"
+        selectImageButton.textContent = fileName;
+        
         uploadButton.classList.add("selected");
+
       }
       {% if error %}
       window.onload= function(){
