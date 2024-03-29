@@ -97,10 +97,35 @@
 
       }
       {% if error %}
-      window.onload= function(){
-        alert("{{error}}")
+      window.onload = function(){
+        showAlert("{{ error }}")
       };
       {% endif %}
+
+
+      function showAlert(message) {
+        const alertContainer = document.getElementById('alert-container');
+        const alertBox = document.createElement('div');
+        alertBox.classList.add('alert-box');
+        alertBox.innerHTML = `
+          <span>${message}</span>
+          <span class="close-icon">&times;</span>
+        `;
+
+        alertContainer.appendChild(alertBox);
+
+        setTimeout(() => {
+          alertBox.classList.add('show');
+        }, 100);
+
+        const closeIcon = alertBox.querySelector('.close-icon');
+        closeIcon.addEventListener('click', () => {
+          alertBox.classList.remove('show');
+          setTimeout(() => {
+            alertBox.remove();
+          }, 300);
+        });
+      }
     </script>
   </body>
 </html>

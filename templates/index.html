@@ -15,6 +15,7 @@
   </head>
 
   <body>
+    <div id="alert-container"></div>
     <div class="container">
       <header>
         <div class="logo-title">
@@ -117,7 +118,7 @@
 
         const splitCookie = document.cookie.split('=')
         if (splitCookie.length < 2) {
-          alert('Invalid cookies, please click "Reset Session"');
+          showAlert('Invalid cookies, please click "Reset Session"');
           return;
         }
         const sessionID = splitCookie[1];
@@ -176,7 +177,7 @@
         const pollingTimeout = pollingTimeoutMinutes * 1000 * 60;
         setTimeout(() => {
           clearInterval(intervalID);
-          alert('Session timeout, please refresh or click "Reset Session"');
+          showAlert('Session timeout, please refresh or click "Reset Session"');
         }, pollingTimeout);
       });
 
@@ -232,10 +233,10 @@
               "image/png": blob,
             }),
           ]);
-          alert("Image copied to clipboard!");
+          showAlert("Image copied to clipboard!");
         } catch (error) {
           console.error("Error copying image to clipboard", error);
-          alert("Failed to copy image to clipboard.");
+          showAlert("Failed to copy image to clipboard.");
         }
       }
 
@@ -257,6 +258,31 @@
 
       // Call the updateCounter function when the page loads
       window.addEventListener('load', updateCounter);
+
+
+      function showAlert(message) {
+        const alertContainer = document.getElementById('alert-container');
+        const alertBox = document.createElement('div');
+        alertBox.classList.add('alert-box');
+        alertBox.innerHTML = `
+          <span>${message}</span>
+          <span class="close-icon">&times;</span>
+        `;
+
+        alertContainer.appendChild(alertBox);
+
+        setTimeout(() => {
+          alertBox.classList.add('show');
+        }, 100);
+
+        const closeIcon = alertBox.querySelector('.close-icon');
+        closeIcon.addEventListener('click', () => {
+          alertBox.classList.remove('show');
+          setTimeout(() => {
+            alertBox.remove();
+          }, 300);
+        });
+      }
     </script>
   </body>
 </html>
