@@ -15,8 +15,9 @@ import base64
 
 # Heic handle
 from Utils.handleHeic import convert_heic_to_png
+from Utils.session import Session
 
-# Generate IDs for sessions
+# Generate IDs and timestamps for sessions
 import uuid
 
 app = Flask(__name__)
@@ -62,7 +63,7 @@ scheduler.start()
 # Important!!!!!!!
 atexit.register(lambda: scheduler.shutdown())
 
-# Key: UUID, value: [list of image ids for session]
+# Key: UUID, value: `Session` instance
 sessions = {}
 
 @app.route('/')
@@ -71,7 +72,7 @@ def index():
     if not user_id_cookie or not user_id_cookie in sessions:
         # Set up session
         user_id = str(uuid.uuid4())
-        sessions[user_id] = []
+        sessions[user_id] = Session(user_id)
     else:
         user_id = user_id_cookie
 
@@ -105,7 +106,7 @@ def index():
 
     # Retrieve list of uploaded file URLs for the session so that it syncs when uploaded in the same
     # session
-    uploaded_files_urls = sessions[user_id]
+    uploaded_files_urls = sessions[user_id].images
 
     # Return the qr str, list of urls, and qr code url (temp since we haven't deployed yet)
     rendered_template = render_template('index.html', qr_code_data=img_str, uploaded_files_urls=uploaded_files_urls, qr_code_url=request_url, session=user_id)
@@ -147,7 +148,7 @@ def upload_file():
             # Append the new file URL to the list in the session
             if session_id in sessions:
 #                sessions[session_id].append(url_for('static', filename=f'images/{filename}'))
-                sessions[session_id].append(f'{GLOBAL_URL_ROOT}static/images/{filename}')
+                sessions[session_id].add_image(f'{GLOBAL_URL_ROOT}static/images/{filename}')
 
 
             # Increment the counter value
@@ -169,7 +170,7 @@ def get_session_links():
     if not session_id in sessions:
         return make_response('Session not found with provided ID', 404)
 
-    return jsonify(sessions[session_id])
+    return jsonify(sessions[session_id].images)
     return ":)"
 
 
@@ -189,6 +190,9 @@ def reset_session():
     # This is hooked up with a button on the front end to reset the session (a.k.a clean images uploaded)
     # session.pop('user_id', None)  # Remove the current session ID
     # session.pop('uploaded_files_urls', None)  # Clear the list of uploaded files
+    user_id_cookie = request.cookies.get('user_id')
+    if user_id_cookie in sessions:
+        del sessions[user_id_cookie]
     response = make_response(redirect(url_for('index')))
     response.set_cookie('user_id', '', expires=0)
     return response
