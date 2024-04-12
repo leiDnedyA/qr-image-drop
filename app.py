@@ -20,6 +20,8 @@ from Utils.session import Session
 # Generate IDs and timestamps for sessions
 import uuid
 
+ACCEPTED_FILETYPES = set(["png", "jpg", "jpeg", "heic", "webp", "svg", "gif"])
+
 app = Flask(__name__)
 app.secret_key = 'very_secret_key'
 app.config['UPLOAD_FOLDER'] = 'static/images'
@@ -132,6 +134,15 @@ def upload_file():
             return render_template('upload.html',error='Please upload a file')
         if file and file.filename != '':
             # Save the file to the server
+
+            if not '.' in file.filename:
+                return render_template('upload.html', error=f'Error: The file "{file.filename}" is not an accepted file type. Nice try buddy ;)')
+
+            file_extension = file.filename.split('.')[-1]
+
+            if not file_extension.lower() in ACCEPTED_FILETYPES:
+                return render_template('upload.html', error=f'Error: {file_extension} extension is not supported.')
+
             filename = secure_filename(file.filename)
             timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
             filename = f"{session_id}_{timestamp}_{filename}"
