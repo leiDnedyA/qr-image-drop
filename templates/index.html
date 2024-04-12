@@ -220,6 +220,7 @@
       }
 
       async function copyImageToClipboard(buttonElement) {
+        showAlert("Copying image 🕊️...");
         try {
           const imgSrc = buttonElement.getAttribute("data-img-src");
           const response = await fetch(imgSrc);
@@ -276,12 +277,14 @@
         }, 100);
 
         const closeIcon = alertBox.querySelector('.close-icon');
-        closeIcon.addEventListener('click', () => {
+        const closeCallback = () => {
           alertBox.classList.remove('show');
           setTimeout(() => {
             alertBox.remove();
           }, 300);
-        });
+        };
+        closeIcon.addEventListener('click', closeCallback);
+        return closeCallback;
       }
     </script>
   </body>
