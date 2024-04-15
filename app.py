@@ -159,7 +159,9 @@ def upload_file():
                     print(f"Converted HEIC to PNG: {filename}")
                     if session_id in sessions:
                         sessions[session_id].add_image(f'{GLOBAL_URL_ROOT}static/images/{filename}')
+                        sessions[session_id].loading_count -= 1
                 thread = Thread(target=task, args=(file_path, filename, sessions))
+                sessions[session_id].loading_count += 1
                 thread.start()
             else:
                 # Otherwise, don't convert
@@ -186,7 +188,10 @@ def get_session_links():
     if not session_id in sessions:
         return make_response('Session not found with provided ID', 404)
 
-    return jsonify(sessions[session_id].images)
+    return jsonify({
+        "images": sessions[session_id].images,
+        "loading_count": sessions[session_id].loading_count
+        })
     return ":)"
 
 
