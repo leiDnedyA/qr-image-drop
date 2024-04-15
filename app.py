@@ -16,6 +16,7 @@ import base64
 # Heic handle
 from Utils.handleHeic import convert_heic_to_png
 from Utils.session import Session
+from threading import Thread
 
 # Generate IDs and timestamps for sessions
 import uuid
@@ -149,17 +150,21 @@ def upload_file():
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(file_path)
 
-            # Check if the uploaded file is HEIC format; if so, convert to JPG
+            # Check if the uploaded file is HEIC format; if so, convert to PNG
             if filename.lower().endswith('.heic'):
-                file_path = convert_heic_to_png(file_path)
-                # Update filename to the new png filename
-                filename = filename.rsplit('.', 1)[0] + '.png'
-                print(f"Converted HEIC to PNG: {filename}")
-
-            # Append the new file URL to the list in the session
-            if session_id in sessions:
-#                sessions[session_id].append(url_for('static', filename=f'images/{filename}'))
-                sessions[session_id].add_image(f'{GLOBAL_URL_ROOT}static/images/{filename}')
+                # Use separate thread for conversion to keep response time for /upload endpoint low
+                def task(file_path, filename, sessions):
+                    file_path = convert_heic_to_png(file_path)
+                    filename = filename.rsplit('.', 1)[0] + '.png' # filename.heic -> filename.png
+                    print(f"Converted HEIC to PNG: {filename}")
+                    if session_id in sessions:
+                        sessions[session_id].add_image(f'{GLOBAL_URL_ROOT}static/images/{filename}')
+                thread = Thread(target=task, args=(file_path, filename, sessions))
+                thread.start()
+            else:
+                # Otherwise, don't convert
+                if session_id in sessions:
+                    sessions[session_id].add_image(f'{GLOBAL_URL_ROOT}static/images/{filename}')
 
 
             # Increment the counter value
