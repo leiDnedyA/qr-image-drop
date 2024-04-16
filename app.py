@@ -18,6 +18,8 @@ from Utils.handleHeic import convert_heic_to_png
 from Utils.session import Session
 from threading import Thread
 
+import time
+
 # Generate IDs and timestamps for sessions
 import uuid
 
@@ -144,6 +146,9 @@ def upload_file():
             if not file_extension.lower() in ACCEPTED_FILETYPES:
                 return render_template('upload.html', error=f'Error: {file_extension} extension is not supported.')
 
+            sessions[session_id].loading_count += 1
+            time.sleep(5)
+
             filename = secure_filename(file.filename)
             timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
             filename = f"{session_id}_{timestamp}_{filename}"
@@ -161,12 +166,12 @@ def upload_file():
                         sessions[session_id].add_image(f'{GLOBAL_URL_ROOT}static/images/{filename}')
                         sessions[session_id].loading_count -= 1
                 thread = Thread(target=task, args=(file_path, filename, sessions))
-                sessions[session_id].loading_count += 1
                 thread.start()
             else:
                 # Otherwise, don't convert
                 if session_id in sessions:
                     sessions[session_id].add_image(f'{GLOBAL_URL_ROOT}static/images/{filename}')
+                sessions[session_id].loading_count -= 1
 
 
             # Increment the counter value

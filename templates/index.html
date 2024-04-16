@@ -124,7 +124,7 @@
         const sessionID = splitCookie[1];
 
         // Poll endpoint for new uploads
-        const pollingDelay = 3000;
+        const pollingDelay = 100;
         const pollingTimeoutMinutes = 10;
 
         const intervalID = setInterval( async () => {
@@ -180,6 +180,7 @@
                 src="/static/assets/loader.gif"
                 class="uploaded-image"
                 alt="Uploaded File"
+                width=400
               />
               <div class="button-container">
                 <a href="#" download class="download-button disabled"
