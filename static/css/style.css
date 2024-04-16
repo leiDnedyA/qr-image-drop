@@ -156,6 +156,10 @@ button {
   box-shadow: 0 2px 40px var(--accent-color);
 }
 
+.file-placeholder {
+  cursor: progress;
+}
+
 .button-container {
   display: flex;
   justify-content: space-between;
@@ -172,6 +176,11 @@ button {
   margin-top: 15px;
 }
 
+.copy-button.disabled {
+  background-color: #666;
+  cursor: progress;
+}
+
 .download-button {
   background-color: #333;
   color: #fff;
@@ -181,6 +190,11 @@ button {
   text-decoration: none;
   white-space: nowrap;
   margin-top: 15px;
+}
+
+.download-button.disabled{
+  background-color: #666;
+  cursor: progress;
 }
 
 /* Styles for the upload page */

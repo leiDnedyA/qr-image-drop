@@ -131,13 +131,14 @@
           const response = await fetch(`./session_links?session_id=${sessionID}`);
           const responseJSON = await response.json();
           console.log(responseJSON);
-          if (responseJSON.length > 0) {
+          const responseLinks = responseJSON.images;
+          if (responseLinks > 0) {
             const noFilesYetText = document.getElementById('no-files-yet');
             if (noFilesYetText) {
               noFilesYetText.remove();
             }
           }
-          for (const imageURL of responseJSON) {
+          for (const imageURL of responseLinks) {
             if (!currentImages.has(imageURL)) {
               currentImages.add(imageURL);
 
@@ -169,6 +170,41 @@
 
               updateCounter();
               
+            }
+          }
+          // Add/remove placeholders for loading images
+          const currentLoadingElements = document.querySelectorAll('.file-placeholder');
+          if (currentLoadingElements.length < responseJSON.loading_count) {
+            const placeholderInnerHTML = `
+              <img
+                src="/static/assets/loader.gif"
+                class="uploaded-image"
+                alt="Uploaded File"
+              />
+              <div class="button-container">
+                <a href="#" download class="download-button disabled"
+                  >🛬 Download</a
+                >
+                <button
+                  disabled
+                  class="copy-button disabled"
+                >
+                  📋 Copy
+                </button>
+              </div>
+              `;
+            for (let i = 0; i < responseJSON.loading_count - currentLoadingElements.length; i++) {
+              const placeholderElement = document.createElement('div');
+              placeholderElement.classList.add('file-container');
+              placeholderElement.classList.add('file-placeholder');
+              placeholderElement.innerHTML = placeholderInnerHTML;
+
+              document.getElementById('file-grid').
+                appendChild(placeholderElement);
+            }
+          } else if (currentLoadingElements.length > responseJSON.loading_count) {
+            for (let i = 0; i < currentLoadingElements.length - responseJSON.loading_count; i++) {
+              currentLoadingElements[currentLoadingElements.length - 1].remove();
             }
           }
         }, pollingDelay);
