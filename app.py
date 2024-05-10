@@ -18,11 +18,15 @@ from Utils.handleHeic import convert_heic_to_png
 
 # Generate IDs for sessions
 import uuid
+from random import randint
 
 app = Flask(__name__)
 app.secret_key = 'very_secret_key'
 app.config['UPLOAD_FOLDER'] = 'static/images'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1000 * 1000
+
+# Dictionary to store user codes with IP addresses
+user_codes = {}
 
 def get_url_root(request):
     """
@@ -72,8 +76,14 @@ def index():
         # Set up session
         user_id = str(uuid.uuid4())
         sessions[user_id] = []
+        # Generate a random 3 or 4 digit unique code for the session
+        # Inside the index() function
+        unique_code = str(randint(100, 9999))
+        user_codes[user_id] = unique_code
     else:
         user_id = user_id_cookie
+        # Retrieve the unique code associated with the session ID
+        unique_code = user_codes.get(user_id)
 
     # Generate QR code
     qr = qrcode.QRCode(
@@ -82,7 +92,6 @@ def index():
         box_size=10,
         border=4,
     )
-
 
     # Update the URL root based on requests made to "/"
     url_root = get_url_root(request)
@@ -97,7 +106,7 @@ def index():
     qr.add_data(request_url)
     qr.make(fit=True)
     img = qr.make_image(fill_color="#000", back_color="#eda400")
-    
+
     # Make it a base64 string
     buffered = BytesIO()
     img.save(buffered, format="PNG")
@@ -108,21 +117,24 @@ def index():
     uploaded_files_urls = sessions[user_id]
 
     # Return the qr str, list of urls, and qr code url (temp since we haven't deployed yet)
-    rendered_template = render_template('index.html', qr_code_data=img_str, uploaded_files_urls=uploaded_files_urls, qr_code_url=request_url, session=user_id)
+    rendered_template = render_template('index.html', qr_code_data=img_str, uploaded_files_urls=uploaded_files_urls,
+                                        qr_code_url=request_url, session=user_id, unique_code=unique_code)
     response = make_response(rendered_template)
     if not request.cookies.get('user_id') or request.cookies.get('user_id') != user_id:
         response.set_cookie('user_id', user_id)
     return response
 
 
-
 # This route is used to upload files to the server
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
     session_id = request.args.get('session_id', '')
-
-    if not session_id in sessions:
-        return make_response('<h1>Invalid session, press "Reset Session" button on the main page and try again</h1>')
+    # Check if session ID is provided
+    if session_id:
+        if session_id not in sessions:
+            return make_response('<h1>Invalid session ID</h1>', 400)
+    else:
+        return make_response('<h1>No session ID or unique code provided</h1>', 400)
 
     # Check if the session ID is valid
     if request.method == 'POST':
@@ -172,6 +184,24 @@ def get_session_links():
     return jsonify(sessions[session_id])
     return ":)"
 
+def get_session_id_from_code(unique_code):
+    for session_id, code in user_codes.items():
+        if code == unique_code:
+            return session_id
+    return None
+
+@app.route('/search_session', methods=['POST'])
+def search_session():
+    provided_code = request.form.get('code')
+
+    # Iterate through user_codes to find the session ID corresponding to the provided code
+    for session_id, code in user_codes.items():
+        if code == provided_code:
+            # If a match is found, redirect to the upload page for that session ID
+            return redirect(url_for('upload_file', session_id=session_id))
+
+        # If no match is found, return an error response
+        return render_template('index.html', error_message='Session not found for provided code')
 
 @app.route('/counter')
 def get_counter():
@@ -186,11 +216,17 @@ def get_counter():
 
 @app.route('/reset')
 def reset_session():
+    # Generate a new unique code
+    unique_code = str(randint(100, 9999))
+
     # This is hooked up with a button on the front end to reset the session (a.k.a clean images uploaded)
     # session.pop('user_id', None)  # Remove the current session ID
     # session.pop('uploaded_files_urls', None)  # Clear the list of uploaded files
     response = make_response(redirect(url_for('index')))
     response.set_cookie('user_id', '', expires=0)
+
+    # Add the unique code to the response cookies
+    response.set_cookie('unique_code', unique_code)
     return response
 
 if __name__ == '__main__':

@@ -54,7 +54,16 @@
               >here.</a
             >
           </p>
+            <p>Use this code to connect to other devices: {{ unique_code }}</p>
         </section>
+        <form id="uniqueCodeForm" action="/search_session" method="POST">
+            <p>Enter the unique code if you don't want to scan : </p>
+            <input type="text" name="code" id="uniqueCodeInput" required>
+            <button type="submit">Submit</button>
+        </form>
+      <!-- Add a placeholder div for the error message -->
+        <!-- Add a placeholder div for the error message -->
+        <div id="errorMessage" style="color: red; display: none;"></div>
         <section class="uploaded-files">
           <h2>Uploaded Files:</h2>
           {% if uploaded_files_urls %}
@@ -167,7 +176,7 @@
                 appendChild(fileContainerElement);
 
               updateCounter();
-              
+
             }
           }
         }, pollingDelay);
@@ -251,12 +260,14 @@
             }
 
             document.getElementById('counter-text').innerHTML = counterHTML;
-            
+
           });
       }
 
       // Call the updateCounter function when the page loads
       window.addEventListener('load', updateCounter);
+
+
     </script>
   </body>
 </html>
