@@ -130,9 +130,8 @@
         const intervalID = setInterval( async () => {
           const response = await fetch(`./session_links?session_id=${sessionID}`);
           const responseJSON = await response.json();
-          console.log(responseJSON);
           const responseLinks = responseJSON.images;
-          if (responseLinks > 0) {
+          if (responseLinks.length > 0) {
             const noFilesYetText = document.getElementById('no-files-yet');
             if (noFilesYetText) {
               noFilesYetText.remove();
