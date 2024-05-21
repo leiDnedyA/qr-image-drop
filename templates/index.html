@@ -62,15 +62,27 @@
           <div id="file-grid" class="file-grid">
             {% for file_url in uploaded_files_urls %}
             <div class="file-container">
+              {% if file_url.lower().endswith('.pdf') %}
+              <embed src="{{ file_url }}" class="uploaded-image">
+              {% else %}
               <img
                 src="{{ file_url }}"
                 class="uploaded-image"
                 alt="Uploaded File"
               />
+              {% endif %}
               <div class="button-container">
                 <a href="{{ file_url }}" download class="download-button"
                   >🛬 Download</a
                 >
+              {% if file_url.lower().endswith('.pdf') %}
+                <a
+                    href="{{ file_url }}"
+                  class="open-pdf-button"
+                >
+                  📄 Open PDF
+                </a>
+              {% else %}
                 <button
                   onclick="copyImageToClipboard(this)"
                   data-img-src="{{ file_url }}"
@@ -78,6 +90,7 @@
                 >
                   📋 Copy
                 </button>
+              {% endif %}
               </div>
             </div>
             {% endfor %}
@@ -140,24 +153,44 @@
           for (const imageURL of responseLinks) {
             if (!currentImages.has(imageURL)) {
               currentImages.add(imageURL);
-
               const imageElementString = `
+                ${
+                imageURL.endsWith('.pdf') ?
+                    `
+                <embed src="${imageURL}" class="uploaded-image">
+                  ` :
+                  `
                 <img
                   src="${imageURL}"
                   class="uploaded-image"
                   alt="Uploaded File"
                 />
+                  `
+                }
                 <div class="button-container">
                   <a href="${imageURL}" download class="download-button"
                     >🛬 Download</a
                   >
-                  <button
-                    onclick="copyImageToClipboard(this)"
-                    data-img-src="${imageURL}"
-                    class="copy-button"
-                  >
-                    📋 Copy
-                  </button>
+                  ${
+                  imageURL.endsWith('.pdf') ?
+                      `
+                        <a
+                          href="${imageURL}"
+                          class="open-pdf-button"
+                        >
+                          📄 Open PDF
+                        </a>
+                    ` :
+                      `
+                        <button
+                          onclick="copyImageToClipboard(this)"
+                          data-img-src="${imageURL}"
+                          class="copy-button"
+                        >
+                          📋 Copy
+                        </button>
+                    `
+                  }
                 </div>
                 `;
               const fileContainerElement = document.createElement('div');
