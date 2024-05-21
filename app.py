@@ -21,7 +21,7 @@ from threading import Thread
 # Generate IDs and timestamps for sessions
 import uuid
 
-ACCEPTED_FILETYPES = set(["png", "jpg", "jpeg", "heic", "webp", "svg", "gif"])
+ACCEPTED_FILETYPES = set(["png", "jpg", "jpeg", "heic", "webp", "svg", "gif", "pdf"])
 
 app = Flask(__name__)
 app.secret_key = 'very_secret_key'
