@@ -1,51 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>QR Pigeon</title>
-    <link rel="stylesheet" href="static/css/style.css" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" href="static/assets/favicon.png" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
-    />
-
-    <script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="qrpigeon" data-description="Support me on Buy me a coffee!" data-message="" data-color="#FF813F" data-position="Right" data-x_margin="18" data-y_margin="18"></script>
-  </head>
-
-  <body>
-    <div id="alert-container"></div>
-    <div class="container">
-      <header>
-        <div class="logo-title">
-          <img src="/static/assets/logo.svg" alt="Logo" class="logo" />
-          <div>
-            <h1>Upload and Share Files</h1>
-            <p id="counter-text" class="header-counter-text">:)</p>
-          </div>
+<head>
+  <meta charset="UTF-8">
+  <title>QR Pigeon</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="static/css/style.css">
+  <link rel="icon" href="static/assets/favicon.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="qrpigeon" data-description="Support me on Buy me a coffee!" data-message="" data-color="#FF813F" data-position="Right" data-x_margin="18" data-y_margin="18"></script>
+</head>
+<body>
+  <div id="alert-container"></div>
+  <div class="container">
+    <header>
+      <div class="logo-title">
+        <img src="/static/assets/logo.svg" alt="Logo" class="logo">
+        <div>
+          <h1>Transfer files fast</h1>
+          <p id="counter-text" class="header-counter-text">:)</p>
         </div>
-        <div class="buttons">
-          <button onclick="window.location.reload();">🕊️ Refresh</button>
-          <form action="/reset" method="get" class="reset-form">
-            <button type="submit">🪦 Reset Session</button>
-          </form>
-        </div>
-      </header>
-      <main>
-        <div class="info-button">
-          <i class="fa fa-info"></i>
-        </div>
-        <div class="info-box" id="infoBox">
-          <h3>Instructions</h3>
-          <p>1. Scan the QR code with your mobile device.</p>
-          <p>2. On the upload page, select an image to upload.</p>
-          <p>3. The uploaded image will appear on the main page.</p>
-          <p>4. Refresh the page to view the uploaded images.</p>
-          <p>
-            5. Click the "Reset Session" button to clear all uploaded images.
-          </p>
-        </div>
+      </div>
+      <div class="buttons">
+        <button onclick="window.location.reload();">🕊️ Refresh</button>
+        <form action="/reset" method="get" class="reset-form">
+          <button type="submit">🪦 Reset Session</button>
+        </form>
+        <a href="/faq"><button>❔ FAQ</button></a>
+      </div>
+    </header>
+    <main>
         <section class="qr-code">
           <p>Scan the QR code to upload:</p>
           <img src="data:image/png;base64,{{ qr_code_data }}" alt="QR Code" />
@@ -248,15 +231,6 @@
           showAlert('Session timeout, please refresh or click "Reset Session"');
         }, pollingTimeout);
       });
-
-      document
-        .querySelector(".info-button")
-        .addEventListener("click", function (event) {
-          event.stopPropagation();
-          var infoBox = document.getElementById("infoBox");
-          infoBox.style.display =
-            infoBox.style.display === "none" ? "block" : "none";
-        });
 
       document.addEventListener("click", function (event) {
         var infoBox = document.getElementById("infoBox");
