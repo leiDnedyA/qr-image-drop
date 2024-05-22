@@ -179,6 +179,10 @@ def upload_file():
         # Return the upload page
     return render_template('upload.html')
 
+@app.route('/faq', methods=['GET'])
+def faq():
+    return render_template('faq.html')
+
 @app.route('/session_links', methods=['GET'])
 def get_session_links():
     session_id = request.args.get('session_id')
