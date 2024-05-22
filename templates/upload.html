@@ -13,18 +13,7 @@
     <script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="qrpigeon" data-description="Support me on Buy me a coffee!" data-message="" data-color="#FF813F" data-position="Right" data-x_margin="18" data-y_margin="18"></script>
   </head>
   <body>
-    <div class="info-button">
-      <i class="fa fa-info"></i>
-    </div>
     <div id="alert-container"></div>
-    <div class="info-box" id="infoBox">
-      <h3>Instructions</h3>
-      <p>1. Scan the QR code with your mobile device.</p>
-      <p>2. On the upload page, select an image to upload.</p>
-      <p>3. The uploaded image will appear on the main page.</p>
-      <p>4. Refresh the page to view the uploaded images.</p>
-      <p>5. Click the "Reset Session" button to clear all uploaded images.</p>
-    </div>
     <div class="upload-container">
       <img src="static/assets/logo.svg" alt="Logo" class="logo" />
       <h1 class="upload-title">Upload or Take a Picture</h1>
@@ -56,28 +45,6 @@
     </div>
 
     <script>
-      document
-        .querySelector(".info-button")
-        .addEventListener("click", function (event) {
-          event.stopPropagation();
-          var infoBox = document.getElementById("infoBox");
-          infoBox.style.display =
-            infoBox.style.display === "none" ? "block" : "none";
-        });
-
-      document.addEventListener("click", function (event) {
-        var infoBox = document.getElementById("infoBox");
-        var infoButton = document.querySelector(".info-button");
-        var targetElement = event.target;
-
-        if (
-          !infoBox.contains(targetElement) &&
-          !infoButton.contains(targetElement)
-        ) {
-          infoBox.style.display = "none";
-        }
-      });
-
       window.addEventListener("load", function () {
         const overlay = document.getElementById("overlay");
         overlay.style.display = "flex";
