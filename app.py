@@ -38,7 +38,7 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1000 * 1000
 talisman = Talisman(app)
 
 for key, value in talisman_settings.items():
-  setattr(talisman, key, value)
+    setattr(talisman, key, value)
 
 def get_url_root(request):
     """
@@ -69,7 +69,7 @@ def cleanup_old_files():
             creation_time = datetime.fromtimestamp(stat.st_ctime)
             if now - creation_time > timedelta(minutes=5):  # Deletes files older than 5 minutes
                 os.remove(path)
-                print(f"Deleted {path}")
+                app.logger.info(f"Deleted {path}")
 
 scheduler = BackgroundScheduler()
 scheduler.add_job(func=cleanup_old_files, trigger="interval", minutes=5)  # Runs every 5 minutes
@@ -168,7 +168,7 @@ def upload_file():
                 def task(file_path, filename, sessions):
                     file_path = convert_heic_to_png(file_path)
                     filename = filename.rsplit('.', 1)[0] + '.png' # filename.heic -> filename.png
-                    print(f"Converted HEIC to PNG: {filename}")
+                    app.logger.info(f"Converted HEIC to PNG: {filename}")
                     if session_id in sessions:
                         sessions[session_id].add_image(f'{GLOBAL_URL_ROOT}static/images/{filename}')
                         sessions[session_id].loading_count -= 1
@@ -209,7 +209,6 @@ def get_session_links():
         "loading_count": sessions[session_id].loading_count
         })
     return ":)"
-
 
 @app.route('/counter')
 def get_counter():
