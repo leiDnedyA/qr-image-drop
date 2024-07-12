@@ -23,15 +23,19 @@ csp = {
     '\'unsafe-inline\'',
     'https://use.fontawesome.com/',
     'https://fonts.googleapis.com/',
-    'https://fonts.gstatic.com/'
+    'https://fonts.gstatic.com/',
+    'https://cdnjs.cloudflare.com/',
   ],
   'img-src': [
     '\'self\'',
-    'data:'
+    'data:',
+    'blob:',
+    'https://cdn.buymeacoffee.com/'
   ],
   'script-src': [
     '\'self\'',
-    '\'unsafe-inline\''
+    '\'unsafe-inline\'',
+    'https://cdnjs.buymeacoffee.com/',
   ],
   'font-src': [
     '\'self\'',
@@ -39,6 +43,7 @@ csp = {
     'https://fonts.gstatic.com/',
     'https://fonts.googleapis.com/',
     'https://use.fontawesome.com/',
+    'https://cdnjs.cloudflare.com/',
 
   ],
 }
