@@ -21,12 +21,22 @@ from threading import Thread
 # Generate IDs and timestamps for sessions
 import uuid
 
+# Security
+from flask_talisman import Talisman
+from Config.security import talisman_settings
+
 ACCEPTED_FILETYPES = set(["png", "jpg", "jpeg", "heic", "webp", "svg", "gif", "pdf"])
 
 app = Flask(__name__)
 app.secret_key = 'very_secret_key'
 app.config['UPLOAD_FOLDER'] = 'static/images'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1000 * 1000
+
+# Set secure headers and best practices
+talisman = Talisman(app)
+
+for key, value in talisman_settings.items():
+  setattr(talisman, key, value)
 
 def get_url_root(request):
     """
