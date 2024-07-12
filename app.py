@@ -24,11 +24,13 @@ import uuid
 # Security
 from flask_talisman import Talisman
 from Config.security import talisman_settings
+import secrets
 
 ACCEPTED_FILETYPES = set(["png", "jpg", "jpeg", "heic", "webp", "svg", "gif", "pdf"])
 
 app = Flask(__name__)
-app.secret_key = 'very_secret_key'
+
+app.secret_key = secrets.token_urlsafe(16)
 app.config['UPLOAD_FOLDER'] = 'static/images'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1000 * 1000
 
