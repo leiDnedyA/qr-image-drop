@@ -233,5 +233,10 @@ def reset_session():
     response.set_cookie('user_id', '', expires=0)
     return response
 
+# Health Check endpoint
+@app.route('/vet')
+def vet():
+    return 'ok 🕊️'
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8080)
