@@ -76,14 +76,19 @@ h1 {
 }
 
 button {
-  background-color: #eda400;
+  background-color: #f5f5f5;
   color: #000;
-  border: none;
+  border: solid 2px #eda400;
   padding: 10px 20px;
   margin-left: 10px;
   cursor: pointer;
   font-family: 'Bricolage Grotesque', sans-serif;
   border-radius: 20px;
+}
+
+button:hover {
+  background-color: #eda400;
+  color: #000;
 }
 
 .upload-button {

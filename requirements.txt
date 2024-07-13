@@ -17,3 +17,4 @@ six==1.16.0
 typing_extensions==4.10.0
 tzlocal==5.2
 Werkzeug==3.0.1
+flask-talisman==1.1.0

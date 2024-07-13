@@ -21,12 +21,24 @@ from threading import Thread
 # Generate IDs and timestamps for sessions
 import uuid
 
+# Security
+from flask_talisman import Talisman
+from Config.security import talisman_settings
+import secrets
+
 ACCEPTED_FILETYPES = set(["png", "jpg", "jpeg", "heic", "webp", "svg", "gif", "pdf"])
 
 app = Flask(__name__)
-app.secret_key = 'very_secret_key'
+
+app.secret_key = secrets.token_urlsafe(16)
 app.config['UPLOAD_FOLDER'] = 'static/images'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1000 * 1000
+
+# Set secure headers and best practices
+talisman = Talisman(app)
+
+for key, value in talisman_settings.items():
+    setattr(talisman, key, value)
 
 def get_url_root(request):
     """
@@ -57,7 +69,7 @@ def cleanup_old_files():
             creation_time = datetime.fromtimestamp(stat.st_ctime)
             if now - creation_time > timedelta(minutes=5):  # Deletes files older than 5 minutes
                 os.remove(path)
-                print(f"Deleted {path}")
+                app.logger.info(f"Deleted {path}")
 
 scheduler = BackgroundScheduler()
 scheduler.add_job(func=cleanup_old_files, trigger="interval", minutes=5)  # Runs every 5 minutes
@@ -156,7 +168,7 @@ def upload_file():
                 def task(file_path, filename, sessions):
                     file_path = convert_heic_to_png(file_path)
                     filename = filename.rsplit('.', 1)[0] + '.png' # filename.heic -> filename.png
-                    print(f"Converted HEIC to PNG: {filename}")
+                    app.logger.info(f"Converted HEIC to PNG: {filename}")
                     if session_id in sessions:
                         sessions[session_id].add_image(f'{GLOBAL_URL_ROOT}static/images/{filename}')
                         sessions[session_id].loading_count -= 1
@@ -198,7 +210,6 @@ def get_session_links():
         })
     return ":)"
 
-
 @app.route('/counter')
 def get_counter():
     counter_file = 'static/counter.txt'
@@ -221,6 +232,11 @@ def reset_session():
     response = make_response(redirect(url_for('index')))
     response.set_cookie('user_id', '', expires=0)
     return response
+
+# Health Check endpoint
+@app.route('/vet')
+def vet():
+    return 'ok 🕊️'
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8080)
