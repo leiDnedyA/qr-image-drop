@@ -83,6 +83,7 @@ button {
   margin-left: 10px;
   cursor: pointer;
   font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: medium;
   border-radius: 20px;
 }
 
