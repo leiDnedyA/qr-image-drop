@@ -1,6 +1,7 @@
 # Flask app
-from flask import Flask, make_response, render_template, request, redirect, url_for, jsonify
+from flask import Flask, make_response, render_template, request, redirect, url_for, jsonify, Request, Response
 from werkzeug.utils import secure_filename
+from typing import Optional, Dict, List
 
 # File management
 from datetime import datetime, timedelta
@@ -26,7 +27,7 @@ from flask_talisman import Talisman
 from Config.security import talisman_settings
 import secrets
 
-ACCEPTED_FILETYPES = set(["png", "jpg", "jpeg", "heic", "webp", "svg", "gif", "pdf"])
+ACCEPTED_FILETYPES = {"png", "jpg", "jpeg", "heic", "webp", "svg", "gif", "pdf"}
 
 app = Flask(__name__)
 
@@ -40,9 +41,9 @@ talisman = Talisman(app)
 for key, value in talisman_settings.items():
     setattr(talisman, key, value)
 
-def get_url_root(request):
+def get_url_root(request: Request) -> str:
     """
-    Returns the URL root to use for generating qr codes, given a Flask request object.
+    Returns the URL root to use for generating QR codes, given a Flask request object.
 
     Useful in case we are using a reverse-proxy with a different location and want
     the upload page to contain the same location.
@@ -54,10 +55,10 @@ def get_url_root(request):
     return url_root
 
 # Used to store the URL for the home route to account for reverse proxies
-GLOBAL_URL_ROOT = None
+GLOBAL_URL_ROOT: Optional[str] = None
 
-# Function to delete old files (right not it is every 5 minutes for every file older than 5 minutes)
-def cleanup_old_files():
+# Function to delete old files (right now it is every 5 minutes for every file older than 5 minutes)
+def cleanup_old_files() -> None:
     now = datetime.now()
     for filename in os.listdir(app.config['UPLOAD_FOLDER']):
         path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
@@ -79,10 +80,10 @@ scheduler.start()
 atexit.register(lambda: scheduler.shutdown())
 
 # Key: UUID, value: `Session` instance
-sessions = {}
+sessions: Dict[str, Session] = {}
 
 @app.route('/')
-def index():
+def index() -> Response:
     user_id_cookie = request.cookies.get('user_id')
     if not user_id_cookie or not user_id_cookie in sessions:
         # Set up session
@@ -98,7 +99,6 @@ def index():
         box_size=10,
         border=4,
     )
-
 
     # Update the URL root based on requests made to "/"
     url_root = get_url_root(request)
@@ -130,30 +130,28 @@ def index():
         response.set_cookie('user_id', user_id)
     return response
 
-
-
 # This route is used to upload files to the server
 @app.route('/upload', methods=['GET', 'POST'])
-def upload_file():
+def upload_file() -> Response:
     session_id = request.args.get('session_id', '')
 
-    if not session_id in sessions:
+    if session_id not in sessions:
         return make_response('<h1>Invalid session, press "Reset Session" button on the main page and try again</h1>')
 
     # Check if the session ID is valid
     if request.method == 'POST':
         file = request.files.get('file')
         if file.filename == '':
-            return render_template('upload.html',error='Please upload a file')
+            return render_template('upload.html', error='Please upload a file')
         if file and file.filename != '':
             # Save the file to the server
 
-            if not '.' in file.filename:
+            if '.' not in file.filename:
                 return render_template('upload.html', error=f'Error: The file "{file.filename}" is not an accepted file type. Nice try buddy ;)')
 
             file_extension = file.filename.split('.')[-1]
 
-            if not file_extension.lower() in ACCEPTED_FILETYPES:
+            if file_extension.lower() not in ACCEPTED_FILETYPES:
                 return render_template('upload.html', error=f'Error: {file_extension} extension is not supported.')
 
             filename = secure_filename(file.filename)
@@ -165,7 +163,7 @@ def upload_file():
             # Check if the uploaded file is HEIC format; if so, convert to PNG
             if filename.lower().endswith('.heic'):
                 # Use separate thread for conversion to keep response time for /upload endpoint low
-                def task(file_path, filename, sessions):
+                def task(file_path: str, filename: str, sessions: Dict[str, Session]) -> None:
                     file_path = convert_heic_to_png(file_path)
                     filename = filename.rsplit('.', 1)[0] + '.png' # filename.heic -> filename.png
                     app.logger.info(f"Converted HEIC to PNG: {filename}")
@@ -180,7 +178,6 @@ def upload_file():
                 if session_id in sessions:
                     sessions[session_id].add_image(f'{GLOBAL_URL_ROOT}static/images/{filename}')
 
-
             # Increment the counter value
             counter_file = 'static/counter.txt'
             with open(counter_file, 'r') as f:
@@ -192,26 +189,25 @@ def upload_file():
     return render_template('upload.html')
 
 @app.route('/faq', methods=['GET'])
-def faq():
+def faq() -> str:
     return render_template('faq.html')
 
 @app.route('/session_links', methods=['GET'])
-def get_session_links():
+def get_session_links() -> Response:
     session_id = request.args.get('session_id')
 
     if not session_id:
         return make_response('Missing query param "session_id"', 400)
-    if not session_id in sessions:
+    if session_id not in sessions:
         return make_response('Session not found with provided ID', 404)
 
     return jsonify({
         "images": sessions[session_id].images,
         "loading_count": sessions[session_id].loading_count
-        })
-    return ":)"
+    })
 
 @app.route('/counter')
-def get_counter():
+def get_counter() -> str:
     counter_file = 'static/counter.txt'
     if not os.path.exists(counter_file):
         with open(counter_file, 'w') as f:
@@ -220,12 +216,9 @@ def get_counter():
         count = f.read()
     return count
 
-
 @app.route('/reset')
-def reset_session():
+def reset_session() -> Response:
     # This is hooked up with a button on the front end to reset the session (a.k.a clean images uploaded)
-    # session.pop('user_id', None)  # Remove the current session ID
-    # session.pop('uploaded_files_urls', None)  # Clear the list of uploaded files
     user_id_cookie = request.cookies.get('user_id')
     if user_id_cookie in sessions:
         del sessions[user_id_cookie]
@@ -235,7 +228,7 @@ def reset_session():
 
 # Health Check endpoint
 @app.route('/vet')
-def vet():
+def vet() -> str:
     return 'ok 🕊️'
 
 if __name__ == '__main__':
