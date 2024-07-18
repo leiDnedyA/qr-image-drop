@@ -17,6 +17,7 @@ pipeline {
               nohup gunicorn -b 0.0.0.0:3000 app:app &
         '''
         echo 'Running ${env.BUILD_ID} on ${env.JENKINS_URL}...'
+        sh 'pwd'
         sleep 20
         echo 'Finished :)'
       }
