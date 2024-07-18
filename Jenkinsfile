@@ -4,12 +4,18 @@ pipeline {
     stage('Setup') {
       steps {
         sh "python3 -m venv venv"
-        sh "source venv/bin/activate"
-        sh "pip3 install -r requirements.txt"
+        sh '''#!/bin/bash
+              source venv/bin/activate
+              pip3 install -r requirements.txt
+        '''
       }
     }
     stage('Run') {
       steps {
+        sh '''#!/bin/bash
+              source venv/bin/activate
+              nohup gunicorn -b 0.0.0.0:3000 app:app &
+        '''
         echo 'Running ${env.BUILD_ID} on ${env.JENKINS_URL}...'
         sleep 20
         echo 'Finished :)'
