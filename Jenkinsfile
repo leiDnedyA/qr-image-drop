@@ -18,7 +18,6 @@ pipeline {
         '''
         echo 'Running ${env.BUILD_ID} on ${env.JENKINS_URL}...'
         sh 'pwd'
-        sleep 20
         echo 'Finished :)'
       }
     }
