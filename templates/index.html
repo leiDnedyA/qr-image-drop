@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Google Tag Manager -->
-  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-  })(window,document,'script','dataLayer','GTM-T6G4ZBJ7');</script>
-  <!-- End Google Tag Manager -->
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-R0Y82SGFBG"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-R0Y82SGFBG', {
+      client_storage: 'none'
+    });
+  </script>
   <meta charset="UTF-8">
   <title>QR Pigeon</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,10 +20,6 @@
   <script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="qrpigeon" data-description="Support me on Buy me a coffee!" data-message="" data-color="#FF813F" data-position="Right" data-x_margin="18" data-y_margin="18"></script>
 </head>
 <body>
-  <!-- Google Tag Manager (noscript) -->
-  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T6G4ZBJ7"
-  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-  <!-- End Google Tag Manager (noscript) -->
   <div id="alert-container"></div>
   <div class="container">
     <header>
@@ -112,6 +111,14 @@
       </footer>
     </div>
     <script>
+      function getCookie(name) {
+        var match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+        if (match) {
+          return match[2];
+        } else {
+          return null;
+        }
+      }
       window.addEventListener('load', function () {
         const currentImages = new Set();
 
@@ -122,12 +129,11 @@
           currentImages.add(imageElement.src);
         }
 
-        const splitCookie = document.cookie.split('=')
-        if (splitCookie.length < 2) {
+        const sessionID = getCookie('user_id');
+        if (sessionID === null) {
           showAlert('Invalid cookies, please click "Reset Session"');
           return;
         }
-        const sessionID = splitCookie[1];
 
         // Poll endpoint for new uploads
         const pollingDelay = 3000;
