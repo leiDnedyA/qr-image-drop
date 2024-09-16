@@ -35,10 +35,19 @@ app.config['UPLOAD_FOLDER'] = 'static/images'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1000 * 1000
 
 # Set secure headers and best practices
+csp = {
+    'default-src': ["'self'", 'fonts.googleapis.com', '*.google-analytics.com', 'fonts.gstatic.com', 'cdnjs.cloudflare.com'],
+    'img-src': ['*', 'data:'],
+    'script-src': ["'self'", "'unsafe-inline'", '*.google-analytics.com', '*.googletagmanager.com', '*.buymeacoffee.com'],
+    'style-src': ["'self'", "'unsafe-inline'", 'fonts.googleapis.com', 'cdnjs.cloudflare.com'],
+    'frame-src': ['www.buymeacoffee.com', 'buymeacoffee.com']
+}
 talisman = Talisman(app)
 
 for key, value in talisman_settings.items():
     setattr(talisman, key, value)
+
+talisman.content_security_policy = csp
 
 def get_url_root(request):
     """
