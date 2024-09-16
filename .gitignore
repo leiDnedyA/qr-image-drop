@@ -3,6 +3,7 @@
 /static/images/*.jpg
 /static/images/*.jpeg
 /static/images/*.heic
+/static/images/*.pdf
 
 venv/
 __pycache__/
