@@ -1,3 +1,30 @@
+function clearInputs() {
+  const compressionCheckbox = document.querySelector("#compression-checkbox");
+  compressionCheckbox.checked = false;
+  const uploadButton = document.getElementById("upload-button");
+  uploadButton.classList.remove("selected");
+  const fileInput = document.getElementById("file-input");
+  fileInput.value = null;
+  const selectImageButton = document.querySelector(".file-label");
+  selectImageButton.style = "border-style: solid;"
+  selectImageButton.textContent = "✉️ Choose a file";
+}
+
+async function playAnimation() {
+  const overlay = document.getElementById("overlay");
+  overlay.style.display = "flex";
+  return new Promise((res) => {
+    setTimeout(function() {
+      overlay.style.display = "none";
+      res();
+    }, 1000);
+  });
+}
+
+function getCurrentSessionId() {
+  let params = new URL(document.location.toString()).searchParams;
+  return params.get("session_id");
+}
 
 function setCompressionAvailable(value) {
   const compressionCheckbox = document.querySelector("#compression-checkbox");
@@ -7,16 +34,10 @@ function setCompressionAvailable(value) {
 
 function checkCompressionEnabled() {
   const compressionCheckbox = document.querySelector("#compression-checkbox");
-  return compressionCheckbox.clicked;
+  return compressionCheckbox.checked;
 }
 
-window.addEventListener("load", function() {
-  const overlay = document.getElementById("overlay");
-  overlay.style.display = "flex";
-  setTimeout(function() {
-    overlay.style.display = "none";
-  }, 1000);
-});
+window.addEventListener("load", playAnimation);
 
 async function compressImage(file, { quality = 1, type = file.type }) {
   // Get as image data
@@ -30,23 +51,33 @@ async function compressImage(file, { quality = 1, type = file.type }) {
   ctx.drawImage(imageBitmap, 0, 0);
 
   // Turn into Blob
-  return await new Promise((resolve) =>
+  const blob = await new Promise((resolve) =>
     canvas.toBlob(resolve, type, quality)
   );
+
+  // Turn Blob into File
+  return new File([blob], file.name, {
+    type: blob.type,
+  });
 };
 
-function handleUploadSubmit() {
+async function handleUploadSubmit(event) {
+  event.preventDefault();
   const fileInput = document.getElementById('file-input');
-  const file = fileInput.files[0];
+  let file = fileInput.files[0];
 
   if (!file) {
     return;
   }
 
+  if (checkCompressionEnabled()) {
+    file = await compressImage(file, { quality: .2, type: 'image/jpeg' });
+  }
+
   const formData = new FormData();
   formData.append('file', file);
 
-  fetch('/upload', {
+  await fetch(`/upload?session_id=${getCurrentSessionId()}`, {
     method: 'POST',
     body: formData
   })
@@ -54,6 +85,9 @@ function handleUploadSubmit() {
       console.error('Error:', error);
       alert('File upload failed.');
     });
+
+  playAnimation();
+  clearInputs();
 }
 
 function handleFileSelect(event) {
