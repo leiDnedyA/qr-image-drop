@@ -1,4 +1,15 @@
 
+function setCompressionAvailable(value) {
+  const compressionCheckbox = document.querySelector("#compression-checkbox");
+  compressionCheckbox.clicked = false;
+  compressionCheckbox.disabled = value;
+}
+
+function checkCompressionEnabled() {
+  const compressionCheckbox = document.querySelector("#compression-checkbox");
+  return compressionCheckbox.clicked;
+}
+
 window.addEventListener("load", function() {
   const overlay = document.getElementById("overlay");
   overlay.style.display = "flex";
@@ -7,20 +18,34 @@ window.addEventListener("load", function() {
   }, 1000);
 });
 
+async function compressImage(file, { quality = 1, type = file.type }) {
+  // Get as image data
+  const imageBitmap = await createImageBitmap(file);
+
+  // Draw to canvas
+  const canvas = document.createElement('canvas');
+  canvas.width = imageBitmap.width;
+  canvas.height = imageBitmap.height;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(imageBitmap, 0, 0);
+
+  // Turn into Blob
+  return await new Promise((resolve) =>
+    canvas.toBlob(resolve, type, quality)
+  );
+};
+
 function handleUploadSubmit() {
   const fileInput = document.getElementById('file-input');
   const file = fileInput.files[0];
 
-  // Check if a file was selected
   if (!file) {
-    alert('Please select a file!');
     return;
   }
 
   const formData = new FormData();
-  formData.append('file', file); // Append the file to the form data
+  formData.append('file', file);
 
-  // Make the POST request using fetch
   fetch('/upload', {
     method: 'POST',
     body: formData
@@ -38,6 +63,9 @@ function handleFileSelect(event) {
   const selectImageButton = document.querySelector(".file-label");
   selectImageButton.style = "border-style: solid;"
   selectImageButton.textContent = fileName;
+
+  const isPdf = fileName.endsWith('pdf');
+  setCompressionAvailable(isPdf);
 
   uploadButton.classList.add("selected");
 
