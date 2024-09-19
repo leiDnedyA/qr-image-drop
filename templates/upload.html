@@ -11,6 +11,7 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
     />
     <script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="qrpigeon" data-description="Support me on Buy me a coffee!" data-message="" data-color="#FF813F" data-position="Right" data-x_margin="18" data-y_margin="18"></script>
+    <script src="static/scripts/upload.js"></script>
   </head>
   <body>
     <div id="alert-container"></div>
@@ -45,55 +46,12 @@
     </div>
 
     <script>
-      window.addEventListener("load", function () {
-        const overlay = document.getElementById("overlay");
-        overlay.style.display = "flex";
-        setTimeout(function () {
-          overlay.style.display = "none";
-        }, 1000);
-      });
-
-      function handleFileSelect(event) {
-        const fileInput = event.target;
-        const fileName = fileInput.files[0].name;
-        const uploadButton = document.getElementById("upload-button");
-        const selectImageButton = document.querySelector(".file-label");
-        selectImageButton.style = "border-style: solid;"
-        selectImageButton.textContent = fileName;
-        
-        uploadButton.classList.add("selected");
-
-      }
       {% if error %}
-      window.onload = function(){
+      window.onload = function() {
         showAlert("{{ error }}")
       };
       {% endif %}
-
-
-      function showAlert(message) {
-        const alertContainer = document.getElementById('alert-container');
-        const alertBox = document.createElement('div');
-        alertBox.classList.add('alert-box');
-        alertBox.innerHTML = `
-          <span>${message}</span>
-          <span class="close-icon">&times;</span>
-        `;
-
-        alertContainer.appendChild(alertBox);
-
-        setTimeout(() => {
-          alertBox.classList.add('show');
-        }, 100);
-
-        const closeIcon = alertBox.querySelector('.close-icon');
-        closeIcon.addEventListener('click', () => {
-          alertBox.classList.remove('show');
-          setTimeout(() => {
-            alertBox.remove();
-          }, 300);
-        });
-      }
     </script>
+
   </body>
 </html>
