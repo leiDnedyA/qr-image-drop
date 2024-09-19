@@ -7,6 +7,30 @@ window.addEventListener("load", function() {
   }, 1000);
 });
 
+function handleUploadSubmit() {
+  const fileInput = document.getElementById('file-input');
+  const file = fileInput.files[0];
+
+  // Check if a file was selected
+  if (!file) {
+    alert('Please select a file!');
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('file', file); // Append the file to the form data
+
+  // Make the POST request using fetch
+  fetch('/upload', {
+    method: 'POST',
+    body: formData
+  })
+    .catch((error) => {
+      console.error('Error:', error);
+      alert('File upload failed.');
+    });
+}
+
 function handleFileSelect(event) {
   const fileInput = event.target;
   const fileName = fileInput.files[0].name;
