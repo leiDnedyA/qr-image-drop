@@ -37,11 +37,12 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1000 * 1000
 # Set secure headers and best practices
 csp = {
     'default-src': ["'self'", 'fonts.googleapis.com', '*.google-analytics.com', 'fonts.gstatic.com', 'cdnjs.cloudflare.com'],
-    'img-src': ['*', 'data:'],
+    'img-src': ['*', 'data:', 'blob:', '*.google-analytics.com', '*.googletagmanager.com', '*.buymeacoffee.com'],
     'script-src': ["'self'", "'unsafe-inline'", '*.google-analytics.com', '*.googletagmanager.com', '*.buymeacoffee.com'],
     'style-src': ["'self'", "'unsafe-inline'", 'fonts.googleapis.com', 'cdnjs.cloudflare.com'],
     'frame-src': ['www.buymeacoffee.com', 'buymeacoffee.com']
 }
+
 talisman = Talisman(app)
 
 for key, value in talisman_settings.items():
