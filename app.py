@@ -1,4 +1,5 @@
 # Flask app
+from typing import Dict
 from flask import Flask, make_response, render_template, request, redirect, url_for, jsonify
 from werkzeug.utils import secure_filename
 
@@ -40,7 +41,7 @@ csp = {
     'img-src': ['*', 'data:', 'blob:', '*.google-analytics.com', '*.googletagmanager.com', '*.buymeacoffee.com'],
     'script-src': ["'self'", "'unsafe-inline'", '*.google-analytics.com', '*.googletagmanager.com', '*.buymeacoffee.com'],
     'style-src': ["'self'", "'unsafe-inline'", 'fonts.googleapis.com', 'cdnjs.cloudflare.com'],
-    'frame-src': ['www.buymeacoffee.com', 'buymeacoffee.com']
+    'frame-src': ['www.buymeacoffee.com', 'buymeacoffee.com', "'self'"]
 }
 
 talisman = Talisman(app)
@@ -66,13 +67,34 @@ def get_url_root(request):
 # Used to store the URL for the home route to account for reverse proxies
 GLOBAL_URL_ROOT = None
 
-# Function to delete old files (right not it is every 5 minutes for every file older than 5 minutes)
+# Key: UUID, value: `Session` instance
+sessions: Dict[str, Session] = {}
+
+# Function to delete old files and sessions (right not it is every 5 minutes for every file older than 5 minutes)
 def cleanup_old_files():
     now = datetime.now()
+    sessions_to_delete = []
+    for session_id in sessions:
+        session = sessions[session_id]
+        if now - session.timestamp > timedelta(minutes=5):
+            for image_url in session.images:
+                split_image_url = image_url.split("/")
+                if len(split_image_url) == 0:
+                    app.logger.warning(f"warning: corrupted session data for session {session_id}")
+                    continue
+                image_filename = split_image_url[-1]
+                image_path = f'{app.config["UPLOAD_FOLDER"]}/{image_filename}'
+                if os.path.exists(image_path):
+                    os.remove(image_path)
+            app.logger.info(f"deleting session with ID {session_id}")
+            sessions_to_delete.append(session_id)
+    for session_id in sessions_to_delete:
+        del sessions[session_id]
+    # Check to see if any files not associated with a session exist from over 5 minutes ago
     for filename in os.listdir(app.config['UPLOAD_FOLDER']):
         path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         # Make sure not to delete .gitignore so that upload folder is tracked
-        if path.endswith('.gitignore'):
+        if path.endswith('.gitkeep'):
             continue
         if os.path.isfile(path):
             stat = os.stat(path)
@@ -87,9 +109,6 @@ scheduler.start()
 
 # Important!!!!!!!
 atexit.register(lambda: scheduler.shutdown())
-
-# Key: UUID, value: `Session` instance
-sessions = {}
 
 @app.route('/')
 def index():
@@ -129,12 +148,8 @@ def index():
     img.save(buffered, format="PNG")
     img_str = base64.b64encode(buffered.getvalue()).decode()
 
-    # Retrieve list of uploaded file URLs for the session so that it syncs when uploaded in the same
-    # session
-    uploaded_files_urls = sessions[user_id].images
-
     # Return the qr str, list of urls, and qr code url (temp since we haven't deployed yet)
-    rendered_template = render_template('index.html', qr_code_data=img_str, uploaded_files_urls=uploaded_files_urls, qr_code_url=request_url, session=user_id)
+    rendered_template = render_template('index.html', qr_code_data=img_str, qr_code_url=request_url, session=user_id)
     response = make_response(rendered_template)
     if not request.cookies.get('user_id') or request.cookies.get('user_id') != user_id:
         response.set_cookie('user_id', user_id)

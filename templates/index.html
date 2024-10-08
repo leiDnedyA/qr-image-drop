@@ -18,6 +18,7 @@
   <link rel="icon" href="static/assets/favicon.png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="qrpigeon" data-description="Support me on Buy me a coffee!" data-message="" data-color="#FF813F" data-position="Right" data-x_margin="18" data-y_margin="18"></script>
+  <script src="static/js/confetti.js"></script>
 </head>
 <body>
   <div id="alert-container"></div>
@@ -50,47 +51,8 @@
         </section>
         <section class="uploaded-files">
           <h2>Uploaded Files:</h2>
-          {% if uploaded_files_urls %}
-          <div id="file-grid" class="file-grid">
-            {% for file_url in uploaded_files_urls %}
-            <div class="file-container">
-              {% if file_url.lower().endswith('.pdf') %}
-              <a href="#" onclick="openPDF('{{ file_url }}')"><embed src="{{ file_url }}" class="uploaded-image"></a>
-              {% else %}
-              <img
-                src="{{ file_url }}"
-                class="uploaded-image"
-                alt="Uploaded File"
-              />
-              {% endif %}
-              <div class="button-container">
-                <a href="{{ file_url }}" download class="download-button"
-                  >🛬 Download</a
-                >
-              {% if file_url.lower().endswith('.pdf') %}
-                <a
-                    href="{{ file_url }}"
-                  class="open-pdf-button"
-                >
-                  📄 Open PDF
-                </a>
-              {% else %}
-                <button
-                  onclick="copyImageToClipboard(this)"
-                  data-img-src="{{ file_url }}"
-                  class="copy-button"
-                >
-                  📋 Copy
-                </button>
-              {% endif %}
-              </div>
-            </div>
-            {% endfor %}
-          </div>
-          {% else %}
           <div id="file-grid" class="file-grid"></div>
           <p id="no-files-yet">No files uploaded yet.</p>
-          {% endif %}
         </section>
       </main>
       <footer>
@@ -126,13 +88,6 @@
       window.addEventListener('load', function () {
         const currentImages = new Set();
 
-        // Add pre-loaded images to currImages set
-        const fileGrid = document.getElementById('file-grid');
-        for(const imageContainer of fileGrid.children) {
-          const imageElement = imageContainer.children[0];
-          currentImages.add(imageElement.src);
-        }
-
         const sessionID = getCookie('user_id');
         if (sessionID === null) {
           showAlert('Invalid cookies, please click "Reset Session"');
@@ -143,14 +98,19 @@
         const pollingDelay = 3000;
         const pollingTimeoutMinutes = 10;
 
-        const intervalID = setInterval( async () => {
+        const pollCallback = async () => {
           const response = await fetch(`./session_links?session_id=${sessionID}`);
           const responseJSON = await response.json();
           const responseLinks = responseJSON.images;
+          let isFirstUpload = false;
           if (responseLinks.length > 0) {
             const noFilesYetText = document.getElementById('no-files-yet');
             if (noFilesYetText) {
               noFilesYetText.remove();
+            }
+            // If there's a new element and it's the first element, show confetti and auto-scroll
+            if (currentImages.size === 0) {
+              isFirstUpload = true;
             }
           }
           for (const imageURL of responseLinks) {
@@ -160,14 +120,16 @@
                 ${
                 imageURL.endsWith('.pdf') ?
                     `
-                    <a href="#" onclick="openPDF('${imageURL}')"><embed src="${imageURL}" class="uploaded-image"></a>
+                    <a class="pdf-parent-anchor" href="#" onclick="openPDF('${imageURL}')"><embed src="${imageURL}" class="uploaded-image"></a>
                   ` :
                   `
-                <img
-                  src="${imageURL}"
-                  class="uploaded-image"
-                  alt="Uploaded File"
-                />
+                <a target="_blank" rel="noopener noreferrer" class="img-parent-anchor" href="${imageURL}">
+                  <img
+                    src="${imageURL}"
+                    class="uploaded-image"
+                    alt="Uploaded File"
+                  />
+                </a>
                   `
                 }
                 <div class="button-container">
@@ -203,6 +165,28 @@
               document.getElementById('file-grid').
                 appendChild(fileContainerElement);
 
+              let imageElement = null;
+              let embedElement = null;
+              for (let child of fileContainerElement.children) {
+                if (child.classList.contains('img-parent-anchor')) {
+                  imageElement = child.children[0];
+                } else if (child.classList.contains('pdf-parent-anchor')) {
+                  embedElement = child.children[0];
+                }
+              }
+
+              if (isFirstUpload) {
+                const scrollToBottom = () => {
+                  window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
+                }
+                if (imageElement) {
+                  imageElement.onload = scrollToBottom;
+                } else if (embedElement) {
+                  embedElement.onload = scrollToBottom;
+                }
+              }
+
+              confetti();
               updateCounter();
               
             }
@@ -242,7 +226,10 @@
               currentLoadingElements[currentLoadingElements.length - 1].remove();
             }
           }
-        }, pollingDelay);
+        }
+
+        pollCallback(); // run once and then run again every `pollingDelay` milliseconds
+        const intervalID = setInterval(pollCallback, pollingDelay);
 
         // Convert timeout to milliseconds
         const pollingTimeout = pollingTimeoutMinutes * 1000 * 60;

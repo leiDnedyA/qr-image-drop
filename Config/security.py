@@ -89,7 +89,7 @@ talisman_settings = {
     'referrer_policy': 'no-referrer',
     'content_type_nosniff': True,
     'xss_protection': True,
-    'frame_options': 'deny',
+    'frame_options': 'sameorigin',
     'permited_cross_domain_policies': 'none',
     'clear_site_data': ['cache', 'cookies', 'storage'],
     'cross_origin_embedder_policy': 'require-corp',
