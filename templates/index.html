@@ -123,11 +123,13 @@
                     <a class="pdf-parent-anchor" href="#" onclick="openPDF('${imageURL}')"><embed src="${imageURL}" class="uploaded-image"></a>
                   ` :
                   `
-                <img
-                  src="${imageURL}"
-                  class="uploaded-image"
-                  alt="Uploaded File"
-                />
+                <a target="_blank" rel="noopener noreferrer" class="img-parent-anchor" href="${imageURL}">
+                  <img
+                    src="${imageURL}"
+                    class="uploaded-image"
+                    alt="Uploaded File"
+                  />
+                </a>
                   `
                 }
                 <div class="button-container">
@@ -166,8 +168,8 @@
               let imageElement = null;
               let embedElement = null;
               for (let child of fileContainerElement.children) {
-                if (child.classList.contains('uploaded-image')) {
-                  imageElement = child;
+                if (child.classList.contains('img-parent-anchor')) {
+                  imageElement = child.children[0];
                 } else if (child.classList.contains('pdf-parent-anchor')) {
                   embedElement = child.children[0];
                 }
