@@ -87,13 +87,6 @@
       window.addEventListener('load', function () {
         const currentImages = new Set();
 
-        // Add pre-loaded images to currImages set
-        const fileGrid = document.getElementById('file-grid');
-        for(const imageContainer of fileGrid.children) {
-          const imageElement = imageContainer.children[0];
-          currentImages.add(imageElement.src);
-        }
-
         const sessionID = getCookie('user_id');
         if (sessionID === null) {
           showAlert('Invalid cookies, please click "Reset Session"');
@@ -205,7 +198,7 @@
           }
         }
 
-        pollCallback();
+        pollCallback(); // run once and then run again every `pollingDelay` milliseconds
         const intervalID = setInterval(pollCallback, pollingDelay);
 
         // Convert timeout to milliseconds

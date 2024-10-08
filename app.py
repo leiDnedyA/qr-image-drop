@@ -72,7 +72,7 @@ def cleanup_old_files():
     for filename in os.listdir(app.config['UPLOAD_FOLDER']):
         path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         # Make sure not to delete .gitignore so that upload folder is tracked
-        if path.endswith('.gitignore'):
+        if path.endswith('.gitkeep'):
             continue
         if os.path.isfile(path):
             stat = os.stat(path)
