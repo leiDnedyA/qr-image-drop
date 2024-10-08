@@ -18,6 +18,7 @@
   <link rel="icon" href="static/assets/favicon.png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="qrpigeon" data-description="Support me on Buy me a coffee!" data-message="" data-color="#FF813F" data-position="Right" data-x_margin="18" data-y_margin="18"></script>
+  <script src="static/js/confetti.js"></script>
 </head>
 <body>
   <div id="alert-container"></div>
@@ -94,7 +95,7 @@
         }
 
         // Poll endpoint for new uploads
-        const pollingDelay = 1000;
+        const pollingDelay = 3000;
         const pollingTimeoutMinutes = 10;
 
         const pollCallback = async () => {
@@ -183,6 +184,7 @@
                 }
               }
 
+              confetti();
               updateCounter();
               
             }
