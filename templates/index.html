@@ -101,10 +101,15 @@
           const response = await fetch(`./session_links?session_id=${sessionID}`);
           const responseJSON = await response.json();
           const responseLinks = responseJSON.images;
+          let isFirstUpload = false;
           if (responseLinks.length > 0) {
             const noFilesYetText = document.getElementById('no-files-yet');
             if (noFilesYetText) {
               noFilesYetText.remove();
+            }
+            // If there's a new element and it's the first element, show confetti and auto-scroll
+            if (currentImages.size === 0) {
+              isFirstUpload = true;
             }
           }
           for (const imageURL of responseLinks) {
@@ -114,7 +119,7 @@
                 ${
                 imageURL.endsWith('.pdf') ?
                     `
-                    <a href="#" onclick="openPDF('${imageURL}')"><embed src="${imageURL}" class="uploaded-image"></a>
+                    <a class="pdf-parent-anchor" href="#" onclick="openPDF('${imageURL}')"><embed src="${imageURL}" class="uploaded-image"></a>
                   ` :
                   `
                 <img
@@ -156,6 +161,27 @@
 
               document.getElementById('file-grid').
                 appendChild(fileContainerElement);
+
+              let imageElement = null;
+              let embedElement = null;
+              for (let child of fileContainerElement.children) {
+                if (child.classList.contains('uploaded-image')) {
+                  imageElement = child;
+                } else if (child.classList.contains('pdf-parent-anchor')) {
+                  embedElement = child.children[0];
+                }
+              }
+
+              if (isFirstUpload) {
+                const scrollToBottom = () => {
+                  window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
+                }
+                if (imageElement) {
+                  imageElement.onload = scrollToBottom;
+                } else if (embedElement) {
+                  embedElement.onload = scrollToBottom;
+                }
+              }
 
               updateCounter();
               
