@@ -120,7 +120,7 @@
                 ${
                 imageURL.endsWith('.pdf') ?
                     `
-                    <a target="_blank" class="pdf-parent-anchor" href="#" onclick="openPDF('${imageURL}')"><embed src="${imageURL}" class="uploaded-image"></a>
+                    <a class="pdf-parent-anchor" href="#" onclick="openPDF('${imageURL}')"><embed src="${imageURL}" class="uploaded-image"></a>
                   ` :
                   `
                 <a target="_blank" rel="noopener noreferrer" class="img-parent-anchor" href="${imageURL}">
