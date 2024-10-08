@@ -129,12 +129,8 @@ def index():
     img.save(buffered, format="PNG")
     img_str = base64.b64encode(buffered.getvalue()).decode()
 
-    # Retrieve list of uploaded file URLs for the session so that it syncs when uploaded in the same
-    # session
-    uploaded_files_urls = sessions[user_id].images
-
     # Return the qr str, list of urls, and qr code url (temp since we haven't deployed yet)
-    rendered_template = render_template('index.html', qr_code_data=img_str, uploaded_files_urls=uploaded_files_urls, qr_code_url=request_url, session=user_id)
+    rendered_template = render_template('index.html', qr_code_data=img_str, qr_code_url=request_url, session=user_id)
     response = make_response(rendered_template)
     if not request.cookies.get('user_id') or request.cookies.get('user_id') != user_id:
         response.set_cookie('user_id', user_id)

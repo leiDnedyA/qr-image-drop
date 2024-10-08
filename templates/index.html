@@ -50,47 +50,8 @@
         </section>
         <section class="uploaded-files">
           <h2>Uploaded Files:</h2>
-          {% if uploaded_files_urls %}
-          <div id="file-grid" class="file-grid">
-            {% for file_url in uploaded_files_urls %}
-            <div class="file-container">
-              {% if file_url.lower().endswith('.pdf') %}
-              <a href="#" onclick="openPDF('{{ file_url }}')"><embed src="{{ file_url }}" class="uploaded-image"></a>
-              {% else %}
-              <img
-                src="{{ file_url }}"
-                class="uploaded-image"
-                alt="Uploaded File"
-              />
-              {% endif %}
-              <div class="button-container">
-                <a href="{{ file_url }}" download class="download-button"
-                  >🛬 Download</a
-                >
-              {% if file_url.lower().endswith('.pdf') %}
-                <a
-                    href="{{ file_url }}"
-                  class="open-pdf-button"
-                >
-                  📄 Open PDF
-                </a>
-              {% else %}
-                <button
-                  onclick="copyImageToClipboard(this)"
-                  data-img-src="{{ file_url }}"
-                  class="copy-button"
-                >
-                  📋 Copy
-                </button>
-              {% endif %}
-              </div>
-            </div>
-            {% endfor %}
-          </div>
-          {% else %}
           <div id="file-grid" class="file-grid"></div>
           <p id="no-files-yet">No files uploaded yet.</p>
-          {% endif %}
         </section>
       </main>
       <footer>
@@ -140,10 +101,10 @@
         }
 
         // Poll endpoint for new uploads
-        const pollingDelay = 3000;
+        const pollingDelay = 1000;
         const pollingTimeoutMinutes = 10;
 
-        const intervalID = setInterval( async () => {
+        const pollCallback = async () => {
           const response = await fetch(`./session_links?session_id=${sessionID}`);
           const responseJSON = await response.json();
           const responseLinks = responseJSON.images;
@@ -242,7 +203,10 @@
               currentLoadingElements[currentLoadingElements.length - 1].remove();
             }
           }
-        }, pollingDelay);
+        }
+
+        pollCallback();
+        const intervalID = setInterval(pollCallback, pollingDelay);
 
         // Convert timeout to milliseconds
         const pollingTimeout = pollingTimeoutMinutes * 1000 * 60;
