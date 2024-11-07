@@ -15,6 +15,7 @@ from io import BytesIO
 import base64
 
 # Heic handle
+from Utils.generate_filename import generate_fun_filename
 from Utils.handleHeic import convert_heic_to_png
 from Utils.session import Session
 from threading import Thread
@@ -244,6 +245,16 @@ def get_counter():
     with open(counter_file, 'r') as f:
         count = f.read()
     return count
+
+@app.route('/static/images/<path:filename>', methods=['GET'])
+def get_image(filename):
+    hidden_filenames = [".gitignore"]
+    full_path=f'static/images/{filename}'
+    if filename not in hidden_filenames and os.path.exists(full_path):
+        split_filename = filename.split('.')
+        file_extension = split_filename[-1] if len(split_filename) > 1 else None
+        return send_from_directory('static/images', filename, download_name=generate_fun_filename(file_extension))
+    return Response(json.dumps({"message": "File not found."}), status=404, mimetype='application/json')
 
 
 @app.route('/reset')
