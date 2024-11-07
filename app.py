@@ -1,6 +1,6 @@
 # Flask app
 from typing import Dict
-from flask import Flask, make_response, render_template, request, redirect, url_for, jsonify
+from flask import Flask, Response, json, make_response, render_template, request, redirect, send_from_directory, url_for, jsonify
 from werkzeug.utils import secure_filename
 
 # File management
@@ -168,12 +168,12 @@ def upload_file():
     # Check if the session ID is valid
     if request.method == 'POST':
         file = request.files.get('file')
-        if file.filename == '':
+        if not file or file.filename == '':
             return render_template('upload.html',error='Please upload a file')
         if file and file.filename != '':
             # Save the file to the server
 
-            if not '.' in file.filename:
+            if not file.filename or not '.' in file.filename:
                 return render_template('upload.html', error=f'Error: The file "{file.filename}" is not an accepted file type. Nice try buddy ;)')
 
             file_extension = file.filename.split('.')[-1]
