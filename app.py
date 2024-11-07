@@ -1,6 +1,6 @@
 # Flask app
 from typing import Dict
-from flask import Flask, make_response, render_template, request, redirect, url_for, jsonify
+from flask import Flask, Response, json, make_response, render_template, request, redirect, send_from_directory, url_for, jsonify
 from werkzeug.utils import secure_filename
 
 # File management
@@ -15,6 +15,7 @@ from io import BytesIO
 import base64
 
 # Heic handle
+from Utils.generate_filename import generate_fun_filename
 from Utils.handleHeic import convert_heic_to_png
 from Utils.session import Session
 from threading import Thread
@@ -168,12 +169,12 @@ def upload_file():
     # Check if the session ID is valid
     if request.method == 'POST':
         file = request.files.get('file')
-        if file.filename == '':
+        if not file or file.filename == '':
             return render_template('upload.html',error='Please upload a file')
         if file and file.filename != '':
             # Save the file to the server
 
-            if not '.' in file.filename:
+            if not file.filename or not '.' in file.filename:
                 return render_template('upload.html', error=f'Error: The file "{file.filename}" is not an accepted file type. Nice try buddy ;)')
 
             file_extension = file.filename.split('.')[-1]
@@ -244,6 +245,16 @@ def get_counter():
     with open(counter_file, 'r') as f:
         count = f.read()
     return count
+
+@app.route('/static/images/<path:filename>', methods=['GET'])
+def get_image(filename):
+    hidden_filenames = [".gitignore"]
+    full_path=f'static/images/{filename}'
+    if filename not in hidden_filenames and os.path.exists(full_path):
+        split_filename = filename.split('.')
+        file_extension = split_filename[-1] if len(split_filename) > 1 else None
+        return send_from_directory('static/images', filename, download_name=generate_fun_filename(file_extension))
+    return Response(json.dumps({"message": "File not found."}), status=404, mimetype='application/json')
 
 
 @app.route('/reset')
