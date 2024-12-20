@@ -2,6 +2,7 @@
 /static/images/*.png
 /static/images/*.jpg
 /static/images/*.jpeg
+/static/images/*.gif
 /static/images/*.heic
 /static/images/*.pdf
 
