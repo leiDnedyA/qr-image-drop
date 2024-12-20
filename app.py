@@ -168,51 +168,53 @@ def upload_file():
 
     # Check if the session ID is valid
     if request.method == 'POST':
-        file = request.files.get('file')
-        if not file or file.filename == '':
+        files = request.files.getlist('files[]')
+        print(files)
+        if not files:
             return render_template('upload.html',error='Please upload a file')
-        if file and file.filename != '':
-            # Save the file to the server
+        for file in files:
+            if file and file.filename != '':
+                # Save the file to the server
 
-            if not file.filename or not '.' in file.filename:
-                return render_template('upload.html', error=f'Error: The file "{file.filename}" is not an accepted file type. Nice try buddy ;)')
+                if not file.filename or not '.' in file.filename:
+                    return render_template('upload.html', error=f'Error: The file "{file.filename}" is not an accepted file type. Nice try buddy ;)')
 
-            file_extension = file.filename.split('.')[-1]
+                file_extension = file.filename.split('.')[-1]
 
-            if not file_extension.lower() in ACCEPTED_FILETYPES:
-                return render_template('upload.html', error=f'Error: {file_extension} extension is not supported.')
+                if not file_extension.lower() in ACCEPTED_FILETYPES:
+                    return render_template('upload.html', error=f'Error: {file_extension} extension is not supported.')
 
-            filename = secure_filename(file.filename)
-            timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-            filename = f"{session_id}_{timestamp}_{filename}"
-            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(file_path)
+                filename = secure_filename(file.filename)
+                timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+                filename = f"{session_id}_{timestamp}_{filename}"
+                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file.save(file_path)
 
-            # Check if the uploaded file is HEIC format; if so, convert to PNG
-            if filename.lower().endswith('.heic'):
-                # Use separate thread for conversion to keep response time for /upload endpoint low
-                def task(file_path, filename, sessions):
-                    file_path = convert_heic_to_png(file_path)
-                    filename = filename.rsplit('.', 1)[0] + '.png' # filename.heic -> filename.png
-                    app.logger.info(f"Converted HEIC to PNG: {filename}")
+                # Check if the uploaded file is HEIC format; if so, convert to PNG
+                if filename.lower().endswith('.heic'):
+                    # Use separate thread for conversion to keep response time for /upload endpoint low
+                    def task(file_path, filename, sessions):
+                        file_path = convert_heic_to_png(file_path)
+                        filename = filename.rsplit('.', 1)[0] + '.png' # filename.heic -> filename.png
+                        app.logger.info(f"Converted HEIC to PNG: {filename}")
+                        if session_id in sessions:
+                            sessions[session_id].add_image(f'{GLOBAL_URL_ROOT}static/images/{filename}')
+                            sessions[session_id].loading_count -= 1
+                    thread = Thread(target=task, args=(file_path, filename, sessions))
+                    sessions[session_id].loading_count += 1
+                    thread.start()
+                else:
+                    # Otherwise, don't convert
                     if session_id in sessions:
                         sessions[session_id].add_image(f'{GLOBAL_URL_ROOT}static/images/{filename}')
-                        sessions[session_id].loading_count -= 1
-                thread = Thread(target=task, args=(file_path, filename, sessions))
-                sessions[session_id].loading_count += 1
-                thread.start()
-            else:
-                # Otherwise, don't convert
-                if session_id in sessions:
-                    sessions[session_id].add_image(f'{GLOBAL_URL_ROOT}static/images/{filename}')
 
 
-            # Increment the counter value
-            counter_file = 'static/counter.txt'
-            with open(counter_file, 'r') as f:
-                count = int(f.read())
-            with open(counter_file, 'w') as f:
-                f.write(str(count + 1))
+                # Increment the counter value
+                counter_file = 'static/counter.txt'
+                with open(counter_file, 'r') as f:
+                    count = int(f.read())
+                with open(counter_file, 'w') as f:
+                    f.write(str(count + 1))
 
         # Return the upload page
     return render_template('upload.html')

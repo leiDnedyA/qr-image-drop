@@ -26,8 +26,9 @@
         <label for="file-input" class="file-label">✉️ Choose a file</label>
         <input
           type="file"
-          name="file"
+          name="files[]"
           id="file-input"
+          multiple
           onchange="handleFileSelect(event)"
         />
         <p id="file-name"></p>
@@ -55,11 +56,12 @@
 
       function handleFileSelect(event) {
         const fileInput = event.target;
-        const fileName = fileInput.files[0].name;
+        const fileArray = Array.from(fileInput.files);
+        const fileNameLabel = fileArray.map(file => file.name).join(', ');
         const uploadButton = document.getElementById("upload-button");
         const selectImageButton = document.querySelector(".file-label");
         selectImageButton.style = "border-style: solid;"
-        selectImageButton.textContent = fileName;
+        selectImageButton.textContent = fileNameLabel;
         
         uploadButton.classList.add("selected");
 
