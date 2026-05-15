@@ -18,3 +18,4 @@ typing_extensions==4.10.0
 tzlocal==5.2
 Werkzeug==3.0.1
 flask-talisman==1.1.0
+gunicorn==22.0.0

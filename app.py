@@ -2,6 +2,7 @@
 from typing import Dict
 from flask import Flask, Response, json, make_response, render_template, request, redirect, send_from_directory, url_for, jsonify
 from werkzeug.utils import secure_filename
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 # File management
 from datetime import datetime, timedelta
@@ -18,7 +19,7 @@ import base64
 from Utils.generate_filename import generate_fun_filename
 from Utils.handleHeic import convert_heic_to_png
 from Utils.session import Session
-from threading import Thread
+from threading import Lock, Thread
 
 # Generate IDs and timestamps for sessions
 import uuid
@@ -32,9 +33,26 @@ ACCEPTED_FILETYPES = set(["png", "jpg", "jpeg", "heic", "webp", "svg", "gif", "p
 
 app = Flask(__name__)
 
-app.secret_key = secrets.token_urlsafe(16)
-app.config['UPLOAD_FOLDER'] = 'static/images'
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
+
+app.secret_key = os.environ.get('SECRET_KEY', secrets.token_urlsafe(32))
+app.config['UPLOAD_FOLDER'] = os.environ.get('UPLOAD_FOLDER', 'static/images')
+app.config['COUNTER_FILE'] = os.environ.get('COUNTER_FILE', 'static/counter.txt')
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1000 * 1000
+
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+counter_dir = os.path.dirname(app.config['COUNTER_FILE'])
+if counter_dir:
+    os.makedirs(counter_dir, exist_ok=True)
+
+counter_lock = Lock()
+
+def ensure_counter_file():
+    if not os.path.exists(app.config['COUNTER_FILE']):
+        with open(app.config['COUNTER_FILE'], 'w') as f:
+            f.write('0')
+
+ensure_counter_file()
 
 # Set secure headers and best practices
 csp = {
@@ -59,11 +77,20 @@ def get_url_root(request):
     Useful in case we are using a reverse-proxy with a different location and want
     the upload page to contain the same location.
     """
-    if "X-Full-Request-URL" in request.headers:
+    configured_url = os.environ.get('PUBLIC_BASE_URL')
+    if configured_url:
+        url_root = configured_url
+    elif "X-Full-Request-URL" in request.headers:
         url_root = request.headers["X-Full-Request-URL"]
     else:
         url_root = request.url_root
-    return url_root
+    return url_root if url_root.endswith('/') else f'{url_root}/'
+
+def should_set_secure_cookie():
+    cookie_secure = os.environ.get('COOKIE_SECURE')
+    if cookie_secure is not None:
+        return cookie_secure.lower() in ('1', 'true', 'yes', 'on')
+    return request.is_secure
 
 # Used to store the URL for the home route to account for reverse proxies
 GLOBAL_URL_ROOT = None
@@ -153,7 +180,7 @@ def index():
     rendered_template = render_template('index.html', qr_code_data=img_str, qr_code_url=request_url, session=user_id)
     response = make_response(rendered_template)
     if not request.cookies.get('user_id') or request.cookies.get('user_id') != user_id:
-        response.set_cookie('user_id', user_id)
+        response.set_cookie('user_id', user_id, httponly=True, samesite='Lax', secure=should_set_secure_cookie())
     return response
 
 
@@ -210,11 +237,12 @@ def upload_file():
 
 
                 # Increment the counter value
-                counter_file = 'static/counter.txt'
-                with open(counter_file, 'r') as f:
-                    count = int(f.read())
-                with open(counter_file, 'w') as f:
-                    f.write(str(count + 1))
+                with counter_lock:
+                    ensure_counter_file()
+                    with open(app.config['COUNTER_FILE'], 'r') as f:
+                        count = int(f.read())
+                    with open(app.config['COUNTER_FILE'], 'w') as f:
+                        f.write(str(count + 1))
 
         # Return the upload page
     return render_template('upload.html')
@@ -240,11 +268,8 @@ def get_session_links():
 
 @app.route('/counter')
 def get_counter():
-    counter_file = 'static/counter.txt'
-    if not os.path.exists(counter_file):
-        with open(counter_file, 'w') as f:
-            f.write('0')
-    with open(counter_file, 'r') as f:
+    ensure_counter_file()
+    with open(app.config['COUNTER_FILE'], 'r') as f:
         count = f.read()
     return count
 
@@ -268,7 +293,7 @@ def reset_session():
     if user_id_cookie in sessions:
         del sessions[user_id_cookie]
     response = make_response(redirect(url_for('index')))
-    response.set_cookie('user_id', '', expires=0)
+    response.set_cookie('user_id', '', expires=0, httponly=True, samesite='Lax', secure=should_set_secure_cookie())
     return response
 
 # Health Check endpoint
